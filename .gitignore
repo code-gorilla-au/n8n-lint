@@ -138,4 +138,7 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
 .idea
-
+.task
+.ai
+.DS_Store
+coverage*

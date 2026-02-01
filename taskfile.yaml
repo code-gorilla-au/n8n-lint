@@ -1,0 +1,75 @@
+version: '3'
+
+dotenv: ['.env.local']
+
+vars:
+  GOLANG_WORKSPACES: ./internal/...
+  GOLANG_COVERAGE: coverage.out
+
+
+tasks:
+
+  lint:
+    desc: Run go linters.
+    cmds:
+      - golangci-lint run {{ .GOLANG_WORKSPACES }} --fix
+      - govulncheck {{ .GOLANG_WORKSPACES }}
+      - go fmt {{ .GOLANG_WORKSPACES }}
+      -
+  lint-watch:
+    desc: Run go linters in watch mode.
+    watch: true
+    sources:
+      - ./**/*.go
+    cmds:
+      - task: go-lint
+
+  install:
+    desc: Install go dependencies.
+    deps: [install-tools]
+    cmds:
+      - go mod tidy
+      - go mod download
+
+  install-tools:
+    desc: Install CI tools
+    cmds:
+      - go install github.com/matryer/moq@latest
+      - go install golang.org/x/vuln/cmd/govulncheck@latest
+      - go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.8.0
+
+  test:
+    desc: Run go tests.
+    deps: []
+    cmds:
+      - go test -cover -coverprofile={{ .GOLANG_COVERAGE }} -failfast {{ .GOLANG_WORKSPACES }}
+
+  test-watch:
+    desc: Run go tests in watch mode.
+    cmds:
+      - gow test -cover -coverprofile={{ .GOLANG_COVERAGE }} -failfast {{ .GOLANG_WORKSPACES }}
+
+  gen-coverage:
+    desc: Generate go coverage.
+    deps: [test]
+    cmds:
+      - grep -v -E -f ${PWD}/.covignore {{ .GOLANG_COVERAGE }} > coverage.filtered.out
+      - mv coverage.filtered.out {{ .GOLANG_COVERAGE }}
+
+  cover:
+    desc: Run go coverage.
+    deps: [gen-coverage]
+    cmds:
+      - go tool cover -func={{ .GOLANG_COVERAGE }} | grep total
+
+  cover-html:
+    desc: Run go coverage html.
+    deps: [gen-coverage]
+    cmds:
+      - go tool cover -html={{ .GOLANG_COVERAGE }}
+
+  go-ci:
+    desc: Run go ci tasks.
+    cmds:
+      - task: go-lint
+      - task: go-cover

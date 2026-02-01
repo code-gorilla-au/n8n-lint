@@ -1,0 +1,182 @@
+{
+  "name": "test1",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        -176
+      ],
+      "id": "335ce402-bfec-462b-9826-1dcbd863ce02",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ade55bb5-848c-45ac-b388-94bcbf2f951b",
+              "name": "foo",
+              "value": "buzz",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -64,
+        -256
+      ],
+      "id": "672f2c53-0643-402f-8dc6-b8ed89b5d063",
+      "name": "add foo"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1272fad5-4fe3-466a-9392-b1ddc1ab9346",
+              "name": "bar",
+              "value": "shaq",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -64,
+        32
+      ],
+      "id": "bf9cd008-25d8-4031-9ba8-284335f02d7f",
+      "name": "add bar"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        992,
+        -144
+      ],
+      "id": "b7a5c407-e45a-4cc1-a493-5e024af35e61",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        320,
+        -144
+      ],
+      "id": "e2962038-ca1c-41d4-a4d6-cfd995041310",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "include": "specifiedFields",
+        "fieldsToInclude": "foo,bar",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        624,
+        -144
+      ],
+      "id": "7fdbfe2d-d5f3-40bb-bef5-ac61584cafc2",
+      "name": "Aggregate"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "add foo",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "add bar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "add foo": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "add bar": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "3931fd2e-73b5-4a25-81e4-7bd7f62e22cd",
+  "meta": {
+    "instanceId": "757dc90212a91dc1c87095a6b6ec75eb430ba39b69f22ad5db4a24f9637fa66e"
+  },
+  "id": "8vBNOHASim9vdjx04Apdd",
+  "tags": [
+    {
+      "name": "fake",
+      "id": "bJDLiHkEQlNIrcGE",
+      "updatedAt": "2026-02-01T09:49:54.701Z",
+      "createdAt": "2026-02-01T09:49:54.701Z"
+    }
+  ]
+}

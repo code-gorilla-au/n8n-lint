@@ -33,8 +33,25 @@ func (w *WorkflowTree) Add(parent string, node TreeNode) error {
 }
 
 // Find searches for a node with the specified name in the WorkflowTree and returns it if found, or nil if not found.
-func (w *WorkflowTree) Find(name string) *TreeNode {
-	return w.Node.Find(name)
+func (w *WorkflowTree) Find(name string) (*TreeNode, error) {
+
+	node := w.Node.Find(name)
+	if node != nil {
+		return node, nil
+	}
+
+	return nil, fmt.Errorf("%s: %w", name, ErrTreeNodeNotFound)
+}
+
+// FindParent locates and returns the parent node of the node with the specified name or an error if not found.
+func (w *WorkflowTree) FindParent(name string) (*TreeNode, error) {
+
+	node := w.Node.FindParent(name)
+	if node != nil {
+		return node, nil
+	}
+
+	return nil, fmt.Errorf("%s: %w", name, ErrTreeNodeNotFound)
 }
 
 // AddChild appends a child node to the tree under the specified parent node, returning an error if the operation fails.
@@ -56,13 +73,25 @@ func (t *TreeNode) AddChild(parent string, node TreeNode) bool {
 	return false
 }
 
-// Find traverses the tree to locate a node with the specified name and returns it, or nil if not found.
+// Find traverses the tree to locate a node with the specified name and returns it.
 func (t *TreeNode) Find(name string) *TreeNode {
+
 	if t.Name == name {
 		return t
 	}
+
 	for _, child := range t.Children {
 		return child.Find(name)
+	}
+
+	return nil
+}
+
+// FindParent locates and returns the parent node of the node with the specified name.
+func (t *TreeNode) FindParent(name string) *TreeNode {
+	child := t.Find(name)
+	if child != nil {
+		return t
 	}
 
 	return nil

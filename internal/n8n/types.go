@@ -38,4 +38,5 @@ type TreeNode struct {
 	Children []*TreeNode `json:"children,omitempty"`
 }
 
+var ErrParentNotFound = fmt.Errorf("parent node not found")
 var ErrTreeNodeNotFound = fmt.Errorf("tree node not found")

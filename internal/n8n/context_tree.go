@@ -1,7 +1,9 @@
 // Package n8n contains the context for n8n workflows
 package n8n
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // NewTree initializes and returns a new empty WorkflowTree with no root node.
 func NewTree() *WorkflowTree {
@@ -29,7 +31,7 @@ func (w *WorkflowTree) Add(parent string, node TreeNode) error {
 		}
 	}
 
-	return fmt.Errorf("%s: %w", parent, ErrTreeNodeNotFound)
+	return fmt.Errorf("%s: %w", parent, ErrParentNotFound)
 }
 
 // Find searches for a node with the specified name in the WorkflowTree and returns it if found, or nil if not found.
@@ -63,6 +65,10 @@ func (t *TreeNode) AddChild(parent string, node TreeNode) bool {
 	}
 
 	for _, child := range t.Children {
+		if child.Name == node.Name {
+			return true
+		}
+
 		ok := child.AddChild(parent, node)
 		if ok {
 			return true
@@ -80,11 +86,17 @@ func (t *TreeNode) Find(name string) *TreeNode {
 		return t
 	}
 
+	var n *TreeNode
+
 	for _, child := range t.Children {
-		return child.Find(name)
+
+		n = child.Find(name)
+		if n != nil {
+			break
+		}
 	}
 
-	return nil
+	return n
 }
 
 // FindParent locates and returns the parent node of the node with the specified name.

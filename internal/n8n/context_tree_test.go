@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"testing"
+
+	"github.com/code-gorilla-au/odize"
 )
 
 func TestWorkflowTree_Add(t *testing.T) {
@@ -35,20 +37,44 @@ func TestWorkflowTree_Add(t *testing.T) {
 		},
 	}
 
-	tree := NewTree()
+	group := odize.NewGroup(t, nil)
+	err := group.
+		Test("should not return error loading list into tree", func(t *testing.T) {
+			_, err := loadTree(list)
+			odize.AssertNoError(t, err)
+		}).
+		Test("should have all nodes", func(t *testing.T) {
 
+			tree, tErr := loadTree(list)
+			odize.AssertNoError(t, tErr)
+
+			prettyPrint(tree)
+
+			for _, item := range list {
+				_, tErr = tree.Find(item.Name)
+				odize.AssertNoError(t, tErr)
+			}
+		}).
+		Run()
+
+	odize.AssertNoError(t, err)
+}
+
+func loadTree(list []TreeNode) (*WorkflowTree, error) {
+	tree := NewTree()
 	for _, item := range list {
 
-		err := tree.Add(item.Parent, item)
-		if err != nil {
-			t.Error(err)
+		if err := tree.Add(item.Parent, item); err != nil {
+			return nil, err
 		}
+
 	}
 
-	data, err := json.MarshalIndent(tree, "  ", "  ")
-	if err != nil {
-		t.Error(err)
-	}
+	return tree, nil
+}
+
+func prettyPrint(obj any) {
+	data, _ := json.MarshalIndent(obj, "  ", "  ")
 
 	fmt.Print(string(data))
 }

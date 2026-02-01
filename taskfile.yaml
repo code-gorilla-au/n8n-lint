@@ -9,6 +9,11 @@ vars:
 
 tasks:
 
+  cli:
+    desc: Run cli.
+    cmds:
+      - go run ./cmd/cli/...
+
   lint:
     desc: Run go linters.
     cmds:

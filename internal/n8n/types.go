@@ -56,7 +56,7 @@ type AddChildParams[T any] struct {
 
 type TreeNode[T any] struct {
 	Name     string         `json:"name"`
-	Parent   *TreeNode[T]   `json:"parent"`
+	Parent   *TreeNode[T]   `json:"-"` // Don't serialize the parent otherwise it'll cause cycle errors
 	Data     T              `json:"data"`
 	Children []*TreeNode[T] `json:"children"`
 }

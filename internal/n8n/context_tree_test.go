@@ -168,6 +168,8 @@ func TestWorkflowTree_Find(t *testing.T) {
 			tree, err := loadTree(list)
 			odize.AssertNoError(t, err)
 
+			prettyPrint(tree)
+
 			n, err := tree.Find("fourth_child")
 			odize.AssertNoError(t, err)
 
@@ -191,6 +193,35 @@ func TestWorkflowTree_Find(t *testing.T) {
 			odize.AssertNoError(t, err)
 
 			odize.AssertEqual(t, "root", n.Parent.Name)
+		}).
+		Run()
+
+	odize.AssertNoError(t, err)
+}
+
+func TestTreeNode(t *testing.T) {
+
+	group := odize.NewGroup(t, nil)
+	err := group.
+		Test("should return tree node", func(t *testing.T) {
+			tn := TreeNode[map[string]string]{
+				Name:   "root",
+				Parent: nil,
+				Data: map[string]string{
+					"hello": "world",
+				},
+				Children: nil,
+			}
+
+			tn.AddChild("root", AddChildParams[map[string]string]{
+				childName: "foo",
+				data: map[string]string{
+					"foo": "bar",
+				},
+			})
+
+			odize.AssertEqual(t, "root", tn.Name)
+
 		}).
 		Run()
 

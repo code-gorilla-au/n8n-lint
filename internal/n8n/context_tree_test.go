@@ -2,6 +2,7 @@ package n8n
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"testing"
 
@@ -9,31 +10,26 @@ import (
 )
 
 func TestWorkflowTree_Add(t *testing.T) {
-	list := []TreeNode{
+	list := []TestData{
 		{
-			Name:     "root",
-			Parent:   "",
-			Children: nil,
+			Name:   "root",
+			Parent: "",
 		},
 		{
-			Name:     "first_child",
-			Parent:   "root",
-			Children: nil,
+			Name:   "first_child",
+			Parent: "root",
 		},
 		{
-			Name:     "second_child",
-			Parent:   "root",
-			Children: nil,
+			Name:   "second_child",
+			Parent: "root",
 		},
 		{
-			Name:     "third_child",
-			Parent:   "first_child",
-			Children: nil,
+			Name:   "third_child",
+			Parent: "first_child",
 		},
 		{
-			Name:     "fourth_child",
-			Parent:   "third_child",
-			Children: nil,
+			Name:   "fourth_child",
+			Parent: "third_child",
 		},
 	}
 
@@ -48,23 +44,100 @@ func TestWorkflowTree_Add(t *testing.T) {
 			tree, tErr := loadTree(list)
 			odize.AssertNoError(t, tErr)
 
-			prettyPrint(tree)
-
 			for _, item := range list {
 				_, tErr = tree.Find(item.Name)
 				odize.AssertNoError(t, tErr)
 			}
+		}).
+		Test("should return parent not found if child node references unknown parent", func(t *testing.T) {
+			badList := []TestData{
+				{
+					Name:   "root",
+					Parent: "",
+				},
+				{
+					Name:   "first_child",
+					Parent: "root",
+				},
+				{
+					Name:   "second_child",
+					Parent: "first_child",
+				},
+				{
+					Name:   "third_child",
+					Parent: "dead_node",
+				},
+			}
+
+			_, err := loadTree(badList)
+			odize.AssertTrue(t, errors.Is(err, ErrParentNotFound))
+
 		}).
 		Run()
 
 	odize.AssertNoError(t, err)
 }
 
-func loadTree(list []TreeNode) (*WorkflowTree, error) {
+func TestWorkflowTree_FindParent(t *testing.T) {
+
+	list := []TestData{
+		{
+			Name:   "root",
+			Parent: "",
+		},
+		{
+			Name:   "first_child",
+			Parent: "root",
+		},
+		{
+			Name:   "second_child",
+			Parent: "root",
+		},
+		{
+			Name:   "third_child",
+			Parent: "first_child",
+		},
+		{
+			Name:   "fourth_child",
+			Parent: "third_child",
+		},
+	}
+
+	group := odize.NewGroup(t, nil)
+	err := group.
+		Test("should return parent of fourth_child", func(t *testing.T) {
+			tree, err := loadTree(list)
+			odize.AssertNoError(t, err)
+
+			n, err := tree.FindParent("fourth_child")
+			odize.AssertNoError(t, err)
+
+			odize.AssertEqual(t, "third_child", n.Name)
+		}).
+		Test("should return parent of second_child", func(t *testing.T) {
+			tree, err := loadTree(list)
+			odize.AssertNoError(t, err)
+
+			n, err := tree.FindParent("second_child")
+			odize.AssertNoError(t, err)
+
+			odize.AssertEqual(t, "root", n.Name)
+		}).
+		Run()
+
+	odize.AssertNoError(t, err)
+}
+
+type TestData struct {
+	Name   string
+	Parent string
+}
+
+func loadTree(list []TestData) (*WorkflowTree, error) {
 	tree := NewTree()
 	for _, item := range list {
 
-		if err := tree.Add(item.Parent, item); err != nil {
+		if err := tree.Add(item.Parent, item.Name); err != nil {
 			return nil, err
 		}
 

@@ -13,19 +13,32 @@ func NewTree() *WorkflowTree {
 }
 
 // Add appends a node to the WorkflowTree under the specified parent node or initialises the root if it does not exist.
-func (w *WorkflowTree) Add(parent string, node TreeNode) error {
+func (w *WorkflowTree) Add(parent string, childName string) error {
 	if w.Node == nil {
-		w.Node = &node
+		w.Node = &TreeNode{
+			Name: childName,
+			Parent: &TreeNode{
+				Name:     "",
+				Parent:   nil,
+				Children: nil,
+			},
+			Children: nil,
+		}
 		return nil
 	}
 
 	if w.Node.Name == parent {
-		w.Node.Children = append(w.Node.Children, &node)
+		w.Node.Children = append(w.Node.Children, &TreeNode{
+			Name:     childName,
+			Parent:   w.Node,
+			Children: nil,
+		})
+
 		return nil
 	}
 
 	for _, child := range w.Node.Children {
-		ok := child.AddChild(parent, node)
+		ok := child.AddChild(parent, childName)
 		if ok {
 			return nil
 		}
@@ -46,30 +59,34 @@ func (w *WorkflowTree) Find(name string) (*TreeNode, error) {
 }
 
 // FindParent locates and returns the parent node of the node with the specified name or an error if not found.
-func (w *WorkflowTree) FindParent(name string) (*TreeNode, error) {
+func (w *WorkflowTree) FindParent(childName string) (*TreeNode, error) {
 
-	node := w.Node.FindParent(name)
+	node := w.Node.FindParent(childName)
 	if node != nil {
 		return node, nil
 	}
 
-	return nil, fmt.Errorf("%s: %w", name, ErrTreeNodeNotFound)
+	return nil, fmt.Errorf("%s: %w", childName, ErrTreeNodeNotFound)
 }
 
 // AddChild appends a child node to the tree under the specified parent node, returning an error if the operation fails.
-func (t *TreeNode) AddChild(parent string, node TreeNode) bool {
+func (t *TreeNode) AddChild(parent string, childName string) bool {
 
 	if t.Name == parent {
-		t.Children = append(t.Children, &node)
+		t.Children = append(t.Children, &TreeNode{
+			Name:     childName,
+			Parent:   t,
+			Children: nil,
+		})
 		return true
 	}
 
 	for _, child := range t.Children {
-		if child.Name == node.Name {
+		if child.Name == childName {
 			return true
 		}
 
-		ok := child.AddChild(parent, node)
+		ok := child.AddChild(parent, childName)
 		if ok {
 			return true
 		}
@@ -89,7 +106,6 @@ func (t *TreeNode) Find(name string) *TreeNode {
 	var n *TreeNode
 
 	for _, child := range t.Children {
-
 		n = child.Find(name)
 		if n != nil {
 			break
@@ -101,9 +117,10 @@ func (t *TreeNode) Find(name string) *TreeNode {
 
 // FindParent locates and returns the parent node of the node with the specified name.
 func (t *TreeNode) FindParent(name string) *TreeNode {
+
 	child := t.Find(name)
 	if child != nil {
-		return t
+		return child.Parent
 	}
 
 	return nil

@@ -34,7 +34,7 @@ type WorkflowTree struct {
 
 type TreeNode struct {
 	Name     string      `json:"name,omitempty"`
-	Parent   string      `json:"parent,omitempty"`
+	Parent   *TreeNode   `json:"parent,omitempty"`
 	Children []*TreeNode `json:"children,omitempty"`
 }
 

@@ -1,9 +1,7 @@
 package n8n
 
 import (
-	"encoding/json"
 	"errors"
-	"fmt"
 	"testing"
 
 	"github.com/code-gorilla-au/odize"
@@ -13,7 +11,7 @@ func TestWorkflowTree_Add(t *testing.T) {
 	list := []testData{
 		{
 			Name:   "root",
-			Parent: "",
+			Parent: "root",
 		},
 		{
 			Name:   "first_child",
@@ -37,9 +35,10 @@ func TestWorkflowTree_Add(t *testing.T) {
 	err := group.
 		Test("should not return error loading list into tree", func(t *testing.T) {
 			_, err := loadTree(list)
+
 			odize.AssertNoError(t, err)
 		}).
-		Test("should have all nodes", func(t *testing.T) {
+		Test("should have all Nodes", func(t *testing.T) {
 
 			tree, tErr := loadTree(list)
 			odize.AssertNoError(t, tErr)
@@ -83,7 +82,7 @@ func TestWorkflowTree_FindParent(t *testing.T) {
 	list := []testData{
 		{
 			Name:   "root",
-			Parent: "",
+			Parent: "root",
 		},
 		{
 			Name:   "first_child",
@@ -137,7 +136,7 @@ func TestWorkflowTree_Find(t *testing.T) {
 	list := []testData{
 		{
 			Name:   "root",
-			Parent: "",
+			Parent: "root",
 		},
 		{
 			Name:   "first_child",
@@ -205,7 +204,7 @@ type testData struct {
 }
 
 func loadTree(list []testData) (*WorkflowTree[map[string]string], error) {
-	tree := NewTree(list[0].Data)
+	tree := NewTree[map[string]string]()
 	for _, item := range list {
 
 		if err := tree.Add(item.Parent, AddChildParams[map[string]string]{
@@ -218,10 +217,4 @@ func loadTree(list []testData) (*WorkflowTree[map[string]string], error) {
 	}
 
 	return tree, nil
-}
-
-func prettyPrint(obj any) {
-	data, _ := json.MarshalIndent(obj, "  ", "  ")
-
-	fmt.Print(string(data))
 }

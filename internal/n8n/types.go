@@ -1,6 +1,14 @@
 package n8n
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
+
+type Engine struct {
+	Nodes map[string]Node    `json:"nodes"`
+	Tree  WorkflowTree[Node] `json:"tree"`
+}
 
 type Node struct {
 	ID          string         `json:"id"`
@@ -13,7 +21,7 @@ type Node struct {
 
 type Connection struct {
 	Name  string           `json:"name"`
-	Nodes []ConnectionNode `json:"nodes"`
+	Nodes []ConnectionNode `json:"Nodes"`
 }
 
 type ConnectionNode struct {
@@ -22,14 +30,23 @@ type ConnectionNode struct {
 	Index int    `json:"index"`
 }
 
+type Tags struct {
+	Name      string    `json:"name"`
+	ID        string    `json:"id"`
+	UpdatedAt time.Time `json:"updatedAt"`
+	CreatedAt time.Time `json:"createdAt"`
+}
+
 type Workflow struct {
-	Nodes       []Node                                    `json:"nodes"`
+	Nodes       []Node                                    `json:"Nodes"`
 	Connections map[string]map[string][][]*ConnectionNode `json:"connections"`
 	PinData     map[string]any                            `json:"pinData"`
+	ID          string                                    `json:"id"`
+	Tags        []Tags                                    `json:"tags"`
 }
 
 type WorkflowTree[T any] struct {
-	Node *TreeNode[T] `json:"node,omitempty"`
+	Node *TreeNode[T] `json:"node"`
 }
 
 type AddChildParams[T any] struct {
@@ -38,10 +55,10 @@ type AddChildParams[T any] struct {
 }
 
 type TreeNode[T any] struct {
-	Name     string         `json:"name,omitempty"`
-	Parent   *TreeNode[T]   `json:"parent,omitempty"`
-	Data     T              `json:"data,omitempty"`
-	Children []*TreeNode[T] `json:"children,omitempty"`
+	Name     string         `json:"name"`
+	Parent   *TreeNode[T]   `json:"parent"`
+	Data     T              `json:"data"`
+	Children []*TreeNode[T] `json:"children"`
 }
 
 var ErrParentNotFound = fmt.Errorf("parent node not found")

@@ -3,15 +3,17 @@ package n8n
 
 import (
 	"fmt"
+	"log"
 )
 
 // NewTree initializes and returns a new empty WorkflowTree with no root node.
-func NewTree[T any](rootData T) *WorkflowTree[T] {
+func NewTree[T any]() *WorkflowTree[T] {
+	var ret T
 	return &WorkflowTree[T]{
 		Node: &TreeNode[T]{
-			Name:     "",
+			Name:     "root",
 			Parent:   nil,
-			Data:     rootData,
+			Data:     ret,
 			Children: nil,
 		},
 	}
@@ -76,6 +78,13 @@ func (w *WorkflowTree[T]) FindParent(childName string) (*TreeNode[T], error) {
 	return nil, fmt.Errorf("%s: %w", childName, ErrTreeNodeNotFound)
 }
 
+func (w *WorkflowTree[T]) Print() {
+	w.Node.Print()
+	for _, child := range w.Node.Children {
+		child.Print()
+	}
+}
+
 // AddChild appends a child node to the tree under the specified parent node, returning an error if the operation fails.
 func (t *TreeNode[T]) AddChild(parent string, child AddChildParams[T]) bool {
 
@@ -132,4 +141,8 @@ func (t *TreeNode[T]) FindParent(name string) *TreeNode[T] {
 	}
 
 	return nil
+}
+
+func (t *TreeNode[T]) Print() {
+	log.Println(t.Name, t.Data)
 }

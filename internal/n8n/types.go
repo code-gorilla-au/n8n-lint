@@ -28,14 +28,20 @@ type Workflow struct {
 	PinData     map[string]any                            `json:"pinData"`
 }
 
-type WorkflowTree struct {
-	Node *TreeNode `json:"node,omitempty"`
+type WorkflowTree[T any] struct {
+	Node *TreeNode[T] `json:"node,omitempty"`
 }
 
-type TreeNode struct {
-	Name     string      `json:"name,omitempty"`
-	Parent   *TreeNode   `json:"parent,omitempty"`
-	Children []*TreeNode `json:"children,omitempty"`
+type AddChildParams[T any] struct {
+	childName string
+	data      T
+}
+
+type TreeNode[T any] struct {
+	Name     string         `json:"name,omitempty"`
+	Parent   *TreeNode[T]   `json:"parent,omitempty"`
+	Data     T              `json:"data,omitempty"`
+	Children []*TreeNode[T] `json:"children,omitempty"`
 }
 
 var ErrParentNotFound = fmt.Errorf("parent node not found")

@@ -6,8 +6,8 @@ import (
 )
 
 type Engine struct {
-	Nodes map[string]Node    `json:"nodes"`
-	Tree  WorkflowTree[Node] `json:"tree"`
+	Nodes map[string]Node     `json:"nodes"`
+	Tree  *WorkflowTree[Node] `json:"tree"`
 }
 
 type Node struct {
@@ -16,6 +16,7 @@ type Node struct {
 	Type        string         `json:"type"`
 	Position    []int          `json:"position"`
 	Parameters  map[string]any `json:"parameters"`
+	Credentials map[string]any `json:"credentials"`
 	TypeVersion float32        `json:"typeVersion"`
 }
 

@@ -168,8 +168,6 @@ func TestWorkflowTree_Find(t *testing.T) {
 			tree, err := loadTree(list)
 			odize.AssertNoError(t, err)
 
-			prettyPrint(tree)
-
 			n, err := tree.Find("fourth_child")
 			odize.AssertNoError(t, err)
 

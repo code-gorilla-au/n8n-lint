@@ -39,6 +39,7 @@ type Tags struct {
 }
 
 type Workflow struct {
+	Name        string                                    `json:"name"`
 	Nodes       []Node                                    `json:"Nodes"`
 	Connections map[string]map[string][][]*ConnectionNode `json:"connections"`
 	PinData     map[string]any                            `json:"pinData"`

@@ -65,3 +65,4 @@ type TreeNode[T any] struct {
 
 var ErrParentNotFound = fmt.Errorf("parent node not found")
 var ErrTreeNodeNotFound = fmt.Errorf("tree node not found")
+var ErrDependencyNotFound = fmt.Errorf("dependency not found")

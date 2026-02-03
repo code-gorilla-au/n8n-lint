@@ -2,6 +2,7 @@ package n8n
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 
@@ -20,6 +21,49 @@ func NewEngine(workflow Workflow) Engine {
 	e.loadWorkflow(workflow)
 
 	return e
+}
+
+// WalkNodes iterates through all nodes in the engine and invokes the provided callback function for each node.
+func (e *Engine) WalkNodes(callback func(node Node)) {
+	for _, node := range e.Nodes {
+		callback(node)
+	}
+}
+
+// FindUpstreamDependencies identifies and returns a list of upstream dependency nodes for a given child node.
+func (e *Engine) FindUpstreamDependencies(childNode string, upstreamNodes []string) ([]Node, error) {
+	node, err := e.Tree.Find(childNode)
+	if err != nil {
+		return []Node{}, fmt.Errorf("child node %s not found: %w", childNode, err)
+	}
+
+	var dependencies []Node
+	for _, dependency := range upstreamNodes {
+		dep, depErr := e.FindUpstreamDependency(*node, dependency)
+		if depErr != nil {
+			return []Node{}, err
+		}
+		dependencies = append(dependencies, dep)
+	}
+
+	return dependencies, nil
+}
+
+// FindUpstreamDependency traverses the tree to find and return the closest upstream node matching the given name.
+func (e *Engine) FindUpstreamDependency(node TreeNode[Node], upstreamNode string) (Node, error) {
+	var parent *TreeNode[Node]
+
+	parent = node.FindParent(node.Name)
+
+	for parent != nil && parent.Name != upstreamNode {
+		parent = parent.FindParent(parent.Name)
+	}
+
+	if parent == nil {
+		return Node{}, fmt.Errorf("%s: %w", upstreamNode, ErrDependencyNotFound)
+	}
+
+	return parent.Data, nil
 }
 
 // loadNodes populates the engine's node map with nodes from the workflow

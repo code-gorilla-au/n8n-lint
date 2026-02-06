@@ -6,8 +6,12 @@ import (
 )
 
 type Engine struct {
-	Nodes map[string]Node     `json:"nodes"`
-	Tree  *WorkflowTree[Node] `json:"tree"`
+	Nodes map[string]*NodeMap `json:"nodes"`
+}
+
+type NodeMap struct {
+	Node                 Node
+	UpstreamDependencies []*Node
 }
 
 type Node struct {

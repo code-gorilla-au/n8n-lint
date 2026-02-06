@@ -2,7 +2,6 @@ package n8n
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"os"
 
@@ -55,12 +54,13 @@ func loadConnections(nodes map[string]*NodeMap, nodeId string, props map[string]
 					continue
 				}
 
-				if err := tree.Add(nodeId, AddChildParams[Node]{
-					childName: connection.Node,
-					data:      conNode,
-				}); err != nil {
-					log.Println(chalk.Yellow("error adding connection to tree: "), err)
+				n, ok := nodes[nodeId]
+				if !ok {
+					log.Println(chalk.Yellow("node not found: "), nodeId)
+					continue
 				}
+
+				n.UpstreamDependencies = append(n.UpstreamDependencies, &conNode.Node)
 
 			}
 		}

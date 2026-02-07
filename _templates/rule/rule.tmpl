@@ -11,6 +11,8 @@ var rule{{ .Name | casePascal }} = Rule{
 }
 
 
-func (r Rule) Run(workflow n8n.Workflow) Outcome {
+func (r Rule) Run(workflow n8n.Workflow, config RuleConfig) Outcome {
     return Outcome{}
 }
+
+var _ = Runner(&rule{{ .Name | casePascal }})

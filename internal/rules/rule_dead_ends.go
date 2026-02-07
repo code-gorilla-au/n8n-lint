@@ -7,6 +7,8 @@ var ruleDeadEnds = Rule{
 	Description: "TODO",
 }
 
-func (r Rule) Run(workflow n8n.Workflow) Outcome {
+func (r Rule) Run(workflow n8n.Workflow, config RuleConfig) Outcome {
 	return Outcome{}
 }
+
+var _ = Runner(&ruleDeadEnds)

@@ -9,7 +9,7 @@ import (
 	"github.com/code-gorilla-au/n8n-lint/internal/chalk"
 )
 
-func NewEngine(workflow Workflow) Engine {
+func NewWorkflowTree(workflow Workflow) Engine {
 	nodes := make(map[string]*NodeMap)
 
 	e := Engine{
@@ -22,6 +22,7 @@ func NewEngine(workflow Workflow) Engine {
 	return e
 }
 
+// Find retrieves a NodeMap by its name from the engine's Nodes map. Returns an error if the node is not found.
 func (e *Engine) Find(name string) (*NodeMap, error) {
 	n, ok := e.Nodes[name]
 	if !ok {
@@ -31,6 +32,7 @@ func (e *Engine) Find(name string) (*NodeMap, error) {
 	return n, nil
 }
 
+// FindParents retrieves a list of parent nodes for a given node name. Returns an error if the node cannot be found.
 func (e *Engine) FindParents(name string) ([]*NodeMap, error) {
 	n, err := e.Find(name)
 	if err != nil {
@@ -38,6 +40,33 @@ func (e *Engine) FindParents(name string) ([]*NodeMap, error) {
 	}
 
 	return n.Parent, nil
+}
+
+// FindAncestor retrieves the specified ancestor node of a given child node by traversing the node hierarchy. Returns an error if the ancestor is not found.
+func (e *Engine) FindAncestor(ancestor, child string) (*NodeMap, error) {
+	parents, err := e.FindParents(child)
+	if err != nil {
+		return &NodeMap{}, fmt.Errorf("error finding parents for '%s': %w", child, err)
+	}
+
+	for _, parent := range parents {
+		if parent == nil {
+			return &NodeMap{}, fmt.Errorf("parent '%s' not found for '%s': %w", ancestor, child, ErrNodeNotFound)
+		}
+
+		if parent.Node.Name == ancestor {
+			return parent, nil
+		}
+
+		n, nErr := e.FindAncestor(ancestor, parent.Node.Name)
+		if nErr != nil {
+			return n, nErr
+		}
+
+		return n, nil
+	}
+
+	return &NodeMap{}, fmt.Errorf("ancestor '%s' not found for '%s': %w", ancestor, child, ErrNodeNotFound)
 }
 
 // loadNodes populates the engine's node map with nodes from the workflow

@@ -19,7 +19,7 @@ func TestEngine_NewEngine_should_load_nodes(t *testing.T) {
 	workflow, err := LoadWorkflowFromFile(workflowFile)
 	odize.AssertNoError(t, err)
 
-	e := NewEngine(workflow)
+	e := NewWorkflowTree(workflow)
 
 	e.loadNodes(workflow)
 
@@ -36,9 +36,7 @@ func TestEngine_loadWorkflow(t *testing.T) {
 	workflow, err := LoadWorkflowFromFile(workflowFile)
 	odize.AssertNoError(t, err)
 
-	e := NewEngine(workflow)
-
-	prettyPrint(e.Nodes)
+	e := NewWorkflowTree(workflow)
 
 	err = group.
 		Test("should load children", func(t *testing.T) {
@@ -77,9 +75,7 @@ func TestEngine_Find(t *testing.T) {
 	workflow, err := LoadWorkflowFromFile(workflowFile)
 	odize.AssertNoError(t, err)
 
-	e := NewEngine(workflow)
-
-	prettyPrint(e.Nodes)
+	e := NewWorkflowTree(workflow)
 
 	err = group.
 		Test("should load children", func(t *testing.T) {
@@ -112,9 +108,7 @@ func TestEngine_FindParents(t *testing.T) {
 	workflow, err := LoadWorkflowFromFile(workflowFile)
 	odize.AssertNoError(t, err)
 
-	e := NewEngine(workflow)
-
-	prettyPrint(e.Nodes)
+	e := NewWorkflowTree(workflow)
 
 	err = group.
 		Test("should return parents", func(t *testing.T) {
@@ -128,6 +122,37 @@ func TestEngine_FindParents(t *testing.T) {
 		Test("should return error if node does not exist", func(t *testing.T) {
 			_, nErr := e.Find("does not exist")
 			odize.AssertTrue(t, errors.Is(nErr, ErrNodeNotFound))
+
+		}).
+		Run()
+	odize.AssertNoError(t, err)
+}
+
+func TestEngine_FindAncestor(t *testing.T) {
+	group := odize.NewGroup(t, nil)
+
+	cwd, err := os.Getwd()
+	odize.AssertNoError(t, err)
+	workflowFile := filepath.Join(cwd, "test-data", "simple-split-aggregate.json")
+
+	workflow, err := LoadWorkflowFromFile(workflowFile)
+	odize.AssertNoError(t, err)
+
+	e := NewWorkflowTree(workflow)
+
+	err = group.
+		Test("should return ancestor 2 nodes away", func(t *testing.T) {
+			n, nErr := e.FindAncestor("If", "merge back to one")
+			odize.AssertNoError(t, nErr)
+
+			odize.AssertEqual(t, "If", n.Node.Name)
+
+		}).
+		Test("should return distant ancestor", func(t *testing.T) {
+			n, nErr := e.FindAncestor("Merge", "merge back to one")
+			odize.AssertNoError(t, nErr)
+
+			odize.AssertEqual(t, "Merge", n.Node.Name)
 
 		}).
 		Run()

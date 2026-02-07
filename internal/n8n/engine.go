@@ -2,6 +2,7 @@ package n8n
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 
@@ -21,11 +22,30 @@ func NewEngine(workflow Workflow) Engine {
 	return e
 }
 
+func (e *Engine) Find(name string) (*NodeMap, error) {
+	n, ok := e.Nodes[name]
+	if !ok {
+		return nil, fmt.Errorf("%s: %w", name, ErrNodeNotFound)
+	}
+
+	return n, nil
+}
+
+func (e *Engine) FindParents(name string) ([]*NodeMap, error) {
+	n, err := e.Find(name)
+	if err != nil {
+		return []*NodeMap{}, err
+	}
+
+	return n.Parent, nil
+}
+
 // loadNodes populates the engine's node map with nodes from the workflow
 func (e *Engine) loadNodes(workflow Workflow) {
 	for _, node := range workflow.Nodes {
 		e.Nodes[node.Name] = &NodeMap{
 			Node:     node,
+			Parent:   make([]*NodeMap, 0),
 			Children: make([]*NodeMap, 0),
 		}
 	}
@@ -60,6 +80,8 @@ func loadConnections(nodes map[string]*NodeMap, nodeId string, props map[string]
 					continue
 				}
 
+				conNode.Parent = append(conNode.Parent, n)
+
 				n.Children = append(n.Children, conNode)
 
 			}
@@ -83,4 +105,13 @@ func LoadWorkflowFromFile(path string) (Workflow, error) {
 	}
 
 	return workflow, nil
+}
+
+func prettyPrint(nodes map[string]*NodeMap) {
+	data, err := json.MarshalIndent(nodes, "", "  ")
+	if err != nil {
+		log.Println(chalk.Red("Error pretty printing workflow: "), err)
+	}
+
+	fmt.Println(string(data))
 }

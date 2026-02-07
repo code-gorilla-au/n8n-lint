@@ -11,6 +11,7 @@ type Engine struct {
 
 type NodeMap struct {
 	Node     Node       `json:"node"`
+	Parent   []*NodeMap `json:"-"`
 	Children []*NodeMap `json:"children,omitempty"`
 }
 
@@ -51,22 +52,4 @@ type Workflow struct {
 	Tags        []Tags                                    `json:"tags"`
 }
 
-type WorkflowTree[T any] struct {
-	Node *TreeNode[T] `json:"node"`
-}
-
-type AddChildParams[T any] struct {
-	childName string
-	data      T
-}
-
-type TreeNode[T any] struct {
-	Name     string         `json:"name"`
-	Parent   *TreeNode[T]   `json:"-"` // Don't serialize the parent otherwise it'll cause cycle errors
-	Data     T              `json:"data"`
-	Children []*TreeNode[T] `json:"children"`
-}
-
-var ErrParentNotFound = fmt.Errorf("parent node not found")
-var ErrTreeNodeNotFound = fmt.Errorf("tree node not found")
-var ErrDependencyNotFound = fmt.Errorf("dependency not found")
+var ErrNodeNotFound = fmt.Errorf("node not found")

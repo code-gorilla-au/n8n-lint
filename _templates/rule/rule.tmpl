@@ -1,0 +1,14 @@
+---
+to: internal/rules/rule_{{ .Name | caseSnake }}.go
+---
+package rules
+
+var rule{{ .Name | caseCamel }} = Rule{
+    Name: "{{ .Name | caseSnake | caseTitle }}"
+    Description: "TODO"
+}
+
+
+func (r Rule) Run(workflow n8n.Workflow) Outcome {
+    // TODO
+}

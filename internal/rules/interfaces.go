@@ -7,6 +7,6 @@ type Finder interface {
 	FindAncestor(ancestor string, child string) (*n8n.NodeMap, error)
 }
 
-type Rules interface {
+type Runner interface {
 	Run(workflow n8n.Workflow) Outcome
 }

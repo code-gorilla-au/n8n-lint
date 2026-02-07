@@ -1,0 +1,12 @@
+package rules
+
+func TestRule_{{ .Name | caseSnake }}(t *testing.T) {
+    group := odize.NewGroup(t, nil)
+
+    err := group.
+        Test("should do something", func(t *testing.T) {
+            // TODO
+        }).
+        Run()
+    odize.AssertNoError(t, err)
+}

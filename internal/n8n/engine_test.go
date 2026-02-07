@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/code-gorilla-au/odize"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestEngine_NewEngine_should_load_nodes(t *testing.T) {
@@ -84,6 +85,12 @@ func TestEngine_Find(t *testing.T) {
 		Test("should load children", func(t *testing.T) {
 			_, nErr := e.Find("When clicking ‘Execute workflow’")
 			odize.AssertNoError(t, nErr)
+
+		}).
+		Test("should find leaf node", func(t *testing.T) {
+			n, nErr := e.Find("DONE")
+			odize.AssertNoError(t, nErr)
+			assert.Equal(t, 0, len(n.Children))
 
 		}).
 		Test("should return error if node does not exist", func(t *testing.T) {

@@ -155,6 +155,16 @@ func TestEngine_FindAncestor(t *testing.T) {
 			odize.AssertEqual(t, "Merge", n.Node.Name)
 
 		}).
+		Test("should return error if node does not exists", func(t *testing.T) {
+			_, nErr := e.FindAncestor("Merge", "does not exist")
+			odize.AssertTrue(t, errors.Is(nErr, ErrNodeNotFound))
+
+		}).
+		Test("should return error if ancestor does not exists", func(t *testing.T) {
+			_, nErr := e.FindAncestor("does not exist", "Merge")
+			odize.AssertTrue(t, errors.Is(nErr, ErrNodeNotFound))
+
+		}).
 		Run()
 	odize.AssertNoError(t, err)
 }

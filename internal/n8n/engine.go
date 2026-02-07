@@ -22,6 +22,18 @@ func NewWorkflowTree(workflow Workflow) WorkflowTree {
 	return e
 }
 
+func (w *WorkflowTree) FindBy(fn func(node *NodeMap) bool) []*NodeMap {
+	result := make([]*NodeMap, 0)
+
+	for _, node := range w.Nodes {
+		if fn(node) {
+			result = append(result, node)
+		}
+	}
+
+	return result
+}
+
 // Find retrieves a NodeMap by its name from the engine's Nodes map. Returns an error if the node is not found.
 func (w *WorkflowTree) Find(name string) (*NodeMap, error) {
 	n, ok := w.Nodes[name]

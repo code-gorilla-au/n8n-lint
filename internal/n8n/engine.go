@@ -25,8 +25,8 @@ func NewEngine(workflow Workflow) Engine {
 func (e *Engine) loadNodes(workflow Workflow) {
 	for _, node := range workflow.Nodes {
 		e.Nodes[node.Name] = &NodeMap{
-			Node:                 node,
-			UpstreamDependencies: make([]*Node, 0),
+			Node:     node,
+			Children: make([]*NodeMap, 0),
 		}
 	}
 }
@@ -60,7 +60,7 @@ func loadConnections(nodes map[string]*NodeMap, nodeId string, props map[string]
 					continue
 				}
 
-				n.UpstreamDependencies = append(n.UpstreamDependencies, &conNode.Node)
+				n.Children = append(n.Children, conNode)
 
 			}
 		}

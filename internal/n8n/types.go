@@ -10,8 +10,8 @@ type Engine struct {
 }
 
 type NodeMap struct {
-	Node                 Node
-	UpstreamDependencies []*Node
+	Node     Node       `json:"node"`
+	Children []*NodeMap `json:"children,omitempty"`
 }
 
 type Node struct {

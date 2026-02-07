@@ -35,12 +35,15 @@ func TestEngine_loadWorkflow(t *testing.T) {
 
 	e := NewEngine(workflow)
 
+	prettyPrint(e.Nodes)
+
 	err = group.
 		Test("should load upstream dependencies", func(t *testing.T) {
 			n, ok := e.Nodes["When clicking ‘Execute workflow’"]
 			odize.AssertTrue(t, ok)
 
-			odize.AssertEqual(t, 2, len(n.UpstreamDependencies))
+			odize.AssertEqual(t, n.Node.Name, "fo")
+
 		}).
 		Run()
 	odize.AssertNoError(t, err)

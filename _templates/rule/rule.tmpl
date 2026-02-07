@@ -3,12 +3,14 @@ to: internal/rules/rule_{{ .Name | caseSnake }}.go
 ---
 package rules
 
-var rule{{ .Name | caseCamel }} = Rule{
-    Name: "{{ .Name | caseSnake | caseTitle }}"
-    Description: "TODO"
+import "github.com/code-gorilla-au/n8n-lint/internal/n8n"
+
+var rule{{ .Name | casePascal }} = Rule{
+    Name: "{{ .Name | caseSnake | caseTitle }}",
+    Description: "TODO",
 }
 
 
 func (r Rule) Run(workflow n8n.Workflow) Outcome {
-    // TODO
+    return Outcome{}
 }

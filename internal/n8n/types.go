@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type Engine struct {
+type WorkflowTree struct {
 	Nodes map[string]*NodeMap `json:"nodes"`
 }
 

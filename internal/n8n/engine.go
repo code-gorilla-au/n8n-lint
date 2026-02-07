@@ -9,10 +9,10 @@ import (
 	"github.com/code-gorilla-au/n8n-lint/internal/chalk"
 )
 
-func NewWorkflowTree(workflow Workflow) Engine {
+func NewWorkflowTree(workflow Workflow) WorkflowTree {
 	nodes := make(map[string]*NodeMap)
 
-	e := Engine{
+	e := WorkflowTree{
 		Nodes: nodes,
 	}
 
@@ -23,8 +23,8 @@ func NewWorkflowTree(workflow Workflow) Engine {
 }
 
 // Find retrieves a NodeMap by its name from the engine's Nodes map. Returns an error if the node is not found.
-func (e *Engine) Find(name string) (*NodeMap, error) {
-	n, ok := e.Nodes[name]
+func (w *WorkflowTree) Find(name string) (*NodeMap, error) {
+	n, ok := w.Nodes[name]
 	if !ok {
 		return nil, fmt.Errorf("%s: %w", name, ErrNodeNotFound)
 	}
@@ -33,8 +33,8 @@ func (e *Engine) Find(name string) (*NodeMap, error) {
 }
 
 // FindParents retrieves a list of parent nodes for a given node name. Returns an error if the node cannot be found.
-func (e *Engine) FindParents(name string) ([]*NodeMap, error) {
-	n, err := e.Find(name)
+func (w *WorkflowTree) FindParents(name string) ([]*NodeMap, error) {
+	n, err := w.Find(name)
 	if err != nil {
 		return []*NodeMap{}, err
 	}
@@ -43,8 +43,8 @@ func (e *Engine) FindParents(name string) ([]*NodeMap, error) {
 }
 
 // FindAncestor retrieves the specified ancestor node of a given child node by traversing the node hierarchy. Returns an error if the ancestor is not found.
-func (e *Engine) FindAncestor(ancestor, child string) (*NodeMap, error) {
-	parents, err := e.FindParents(child)
+func (w *WorkflowTree) FindAncestor(ancestor, child string) (*NodeMap, error) {
+	parents, err := w.FindParents(child)
 	if err != nil {
 		return &NodeMap{}, fmt.Errorf("error finding parents for '%s': %w", child, err)
 	}
@@ -58,7 +58,7 @@ func (e *Engine) FindAncestor(ancestor, child string) (*NodeMap, error) {
 			return parent, nil
 		}
 
-		n, nErr := e.FindAncestor(ancestor, parent.Node.Name)
+		n, nErr := w.FindAncestor(ancestor, parent.Node.Name)
 		if nErr != nil {
 			return n, nErr
 		}
@@ -70,9 +70,9 @@ func (e *Engine) FindAncestor(ancestor, child string) (*NodeMap, error) {
 }
 
 // loadNodes populates the engine's node map with nodes from the workflow
-func (e *Engine) loadNodes(workflow Workflow) {
+func (w *WorkflowTree) loadNodes(workflow Workflow) {
 	for _, node := range workflow.Nodes {
-		e.Nodes[node.Name] = &NodeMap{
+		w.Nodes[node.Name] = &NodeMap{
 			Node:     node,
 			Parent:   make([]*NodeMap, 0),
 			Children: make([]*NodeMap, 0),
@@ -81,15 +81,15 @@ func (e *Engine) loadNodes(workflow Workflow) {
 }
 
 // loadWorkflow loads the workflow into the engine by linking nodes and connections into a hierarchical structure.
-func (e *Engine) loadWorkflow(workflow Workflow) {
+func (w *WorkflowTree) loadWorkflow(workflow Workflow) {
 	for nodeId, props := range workflow.Connections {
-		_, ok := e.Nodes[nodeId]
+		_, ok := w.Nodes[nodeId]
 		if !ok {
 			log.Println(chalk.Yellow("node not found: "), nodeId)
 			continue
 		}
 
-		loadConnections(e.Nodes, nodeId, props)
+		loadConnections(w.Nodes, nodeId, props)
 	}
 }
 

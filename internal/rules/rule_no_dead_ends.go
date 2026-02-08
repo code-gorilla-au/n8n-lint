@@ -7,17 +7,20 @@ import (
 	"github.com/code-gorilla-au/n8n-lint/internal/n8n"
 )
 
+const (
+	ruleNameNoDeadEnds = "NO_DEAD_ENDS"
+)
+
 var ruleNoDeadEnds = Rule{
 	Name:        ruleNameNoDeadEnds,
-	Description: "Find nodes with no outgoing connections (orphaned / unreachable).",
+	Description: "Find nodes with no incoming or outgoing connections. Indicating incomplete, untested, or unused nodes. Unused nodes causes confusion to the reviewers, cause drift in requirements and hide information. Optionally, provide a list of node names to exclude from the dead-end check via the 'allowed_names' in the configuration file.",
 }
 
 const (
 	ruleNoDeadEndsFieldNameAllowedNames = "allowed_names"
-	ruleNameNoDeadEnds                  = "NO_DEAD_ENDS"
 )
 
-var defaultAllowedDeadEnds = []string{"STOP", "END", "DONE"}
+var defaultAllowedDeadEnds = []string{"STOP", "END", "DONE", "FINISH", "SUCCESS"}
 
 func (r Rule) Run(finder Finder, config RuleConfig) (Outcome, error) {
 

@@ -18,7 +18,12 @@ tasks:
   gen-rule:
     desc: Generate rule.
     cmds:
-      - pyrotic generate rule {{.CLI_ARGS}}
+    - pyrotic generate rule {{.CLI_ARGS}}
+
+  docs:
+    desc: Generate documentation.
+    cmds:
+    - go run scripts/generate_docs.go
 
   lint:
     desc: Run go linters.

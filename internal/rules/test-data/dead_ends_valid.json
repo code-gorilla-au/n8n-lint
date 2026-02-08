@@ -74,10 +74,8 @@
 		}
 	},
 	"meta": {
-		"description": "✅ GOOD: All nodes are connected; no dead ends. Slack alert is part of the main path.",
+		"description": "",
 		"notes": [
-			"FlowLint R5 passes: each node has an outgoing edge",
-			"Intentional terminal node named Done clarifies end of flow"
 		]
 	}
 }

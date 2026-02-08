@@ -29,6 +29,13 @@
 				"text": "Lead saved"
 			},
 			"position": [320, 220]
+		},
+		{
+			"id": "4",
+			"type": "n8n-nodes-base.noOp",
+			"name": "CUSTOM_STOP",
+			"parameters": {},
+			"position": [760, 100]
 		}
 	],
 	"connections": {

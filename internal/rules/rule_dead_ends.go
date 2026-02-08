@@ -1,6 +1,7 @@
 package rules
 
 import (
+	"log"
 	"slices"
 	"strings"
 
@@ -22,6 +23,7 @@ var defaultAllowedDeadEnds = []string{"STOP", "END", "DONE"}
 func (r Rule) Run(finder Finder, config RuleConfig) (Outcome, error) {
 
 	allowed := getAllowedDeadEnds(config)
+	log.Println("foo", allowed)
 
 	nodes := finder.FindBy(func(node *n8n.NodeMap) bool {
 		return len(node.Children) == 0
@@ -34,7 +36,7 @@ func (r Rule) Run(finder Finder, config RuleConfig) (Outcome, error) {
 	}
 
 	for _, node := range nodes {
-		if slices.Contains(allowed, strings.ToUpper(node.Node.Name)) {
+		if slices.Contains(allowed, strings.ToUpper(node.Node.Name)) && len(node.Parent) > 0 {
 			continue
 		}
 
@@ -50,9 +52,12 @@ var _ = Runner(&ruleDeadEnds)
 
 // getAllowedDeadEnds retrieves the list of allowed dead-end node names from the configuration or defaults if not provided.
 func getAllowedDeadEnds(config RuleConfig) []string {
+	merged := defaultAllowedDeadEnds
+
 	if names, ok := config.Context[fieldAllowedNames]; ok {
-		return names.([]string)
+		additional := names.([]string)
+		merged = append(merged, additional...)
 	}
 
-	return defaultAllowedDeadEnds
+	return merged
 }

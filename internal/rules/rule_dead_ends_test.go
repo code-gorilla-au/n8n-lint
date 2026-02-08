@@ -72,7 +72,7 @@ func TestRule_dead_ends_invalid(t *testing.T) {
 			odize.AssertEqual(t, ReportError, outcome.Report)
 			odize.AssertEqual(t, 2, len(outcome.Nodes))
 		}).
-		Test("should return report off on a invalid workflow, and report level warn", func(t *testing.T) {
+		Test("should return report warn on a invalid workflow, and report level warn", func(t *testing.T) {
 			outcome, oErr := ruleDeadEnds.Run(&finder, RuleConfig{
 				Name:    ruleNameDeadEnds,
 				Report:  ReportWarn,
@@ -82,6 +82,92 @@ func TestRule_dead_ends_invalid(t *testing.T) {
 
 			odize.AssertEqual(t, ReportWarn, outcome.Report)
 			odize.AssertEqual(t, 2, len(outcome.Nodes))
+		}).
+		Run()
+	odize.AssertNoError(t, err)
+}
+
+func TestRule_dead_ends_valid_custom(t *testing.T) {
+	group := odize.NewGroup(t, nil)
+
+	cwd, err := os.Getwd()
+	odize.AssertNoError(t, err)
+	workflowFile := filepath.Join(cwd, "test-data", "dead_ends_valid_custom.json")
+
+	workflow, err := n8n.LoadWorkflowFromFile(workflowFile)
+	odize.AssertNoError(t, err)
+
+	finder := n8n.NewWorkflowTree(workflow)
+
+	err = group.
+		Test("should return report off on a valid workflow, and report level error", func(t *testing.T) {
+			outcome, oErr := ruleDeadEnds.Run(&finder, RuleConfig{
+				Name:   ruleNameDeadEnds,
+				Report: ReportError,
+				Context: map[string]any{
+					fieldAllowedNames: []string{"CUSTOM_STOP"},
+				},
+			})
+			odize.AssertNoError(t, oErr)
+
+			odize.AssertEqual(t, ReportOff, outcome.Report)
+			odize.AssertEqual(t, 0, len(outcome.Nodes))
+		}).
+		Test("should return report off on a valid workflow, and report level warn", func(t *testing.T) {
+			outcome, oErr := ruleDeadEnds.Run(&finder, RuleConfig{
+				Name:   ruleNameDeadEnds,
+				Report: ReportWarn,
+				Context: map[string]any{
+					fieldAllowedNames: []string{"CUSTOM_STOP"},
+				},
+			})
+			odize.AssertNoError(t, oErr)
+
+			odize.AssertEqual(t, ReportOff, outcome.Report)
+			odize.AssertEqual(t, 0, len(outcome.Nodes))
+		}).
+		Run()
+	odize.AssertNoError(t, err)
+}
+
+func TestRule_dead_ends_invalid_custom(t *testing.T) {
+	group := odize.NewGroup(t, nil)
+
+	cwd, err := os.Getwd()
+	odize.AssertNoError(t, err)
+	workflowFile := filepath.Join(cwd, "test-data", "dead_ends_invalid_custom.json")
+
+	workflow, err := n8n.LoadWorkflowFromFile(workflowFile)
+	odize.AssertNoError(t, err)
+
+	finder := n8n.NewWorkflowTree(workflow)
+
+	err = group.
+		Test("should return report error on a invalid workflow, and report level error", func(t *testing.T) {
+			outcome, oErr := ruleDeadEnds.Run(&finder, RuleConfig{
+				Name:   ruleNameDeadEnds,
+				Report: ReportError,
+				Context: map[string]any{
+					fieldAllowedNames: []string{"CUSTOM_STOP"},
+				},
+			})
+			odize.AssertNoError(t, oErr)
+
+			odize.AssertEqual(t, ReportError, outcome.Report)
+			odize.AssertEqual(t, 3, len(outcome.Nodes))
+		}).
+		Test("should return report off on a invalid workflow, and report level warn", func(t *testing.T) {
+			outcome, oErr := ruleDeadEnds.Run(&finder, RuleConfig{
+				Name:   ruleNameDeadEnds,
+				Report: ReportWarn,
+				Context: map[string]any{
+					fieldAllowedNames: []string{"CUSTOM_STOP"},
+				},
+			})
+			odize.AssertNoError(t, oErr)
+
+			odize.AssertEqual(t, ReportWarn, outcome.Report)
+			odize.AssertEqual(t, 3, len(outcome.Nodes))
 		}).
 		Run()
 	odize.AssertNoError(t, err)

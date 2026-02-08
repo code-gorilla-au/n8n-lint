@@ -9,5 +9,5 @@ type Finder interface {
 }
 
 type Runner interface {
-	Run(workflow n8n.Workflow, config RuleConfig) Outcome
+	Run(finder Finder, config RuleConfig) (Outcome, error)
 }

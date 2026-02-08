@@ -5,8 +5,12 @@ package rules
 
 import "github.com/code-gorilla-au/n8n-lint/internal/n8n"
 
+const (
+    ruleName{{ .Name | casePascal }} = "{{ .Name | caseSnake | caseTitle }}"
+)
+
 var rule{{ .Name | casePascal }} = Rule{
-    Name: "{{ .Name | caseSnake | caseTitle }}",
+    Name: ruleName{{ .Name | casePascal }},
     Description: "TODO",
 }
 

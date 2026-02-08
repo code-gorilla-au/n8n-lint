@@ -15,10 +15,9 @@ const (
 )
 
 type Outcome struct {
-	Rule             Rule       `json:"rule"`
-	Nodes            []n8n.Node `json:"nodes"`
-	WorkflowFilename string     `json:"workflow_filename"`
-	Report           Report     `json:"report"`
+	Rule   Rule       `json:"rule"`
+	Nodes  []n8n.Node `json:"nodes"`
+	Report Report     `json:"report"`
 }
 
 type Rule struct {

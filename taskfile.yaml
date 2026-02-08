@@ -14,6 +14,12 @@ tasks:
     cmds:
       - go run ./cmd/cli/...
 
+
+  gen-rule:
+    desc: Generate rule.
+    cmds:
+      - pyrotic generate rule {{.CLI_ARGS}}
+
   lint:
     desc: Run go linters.
     cmds:
@@ -73,8 +79,8 @@ tasks:
     cmds:
       - go tool cover -html={{ .GOLANG_COVERAGE }}
 
-  go-ci:
+  ci:
     desc: Run go ci tasks.
     cmds:
-      - task: go-lint
-      - task: go-cover
+      - task: lint
+      - task: cover

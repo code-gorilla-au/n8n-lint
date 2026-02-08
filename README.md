@@ -2,5 +2,11 @@
 Simple linter tool for n8n workflows JSON files.
 
 
+## Add new rule
 
-go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.8.0
+Use the template to add a new rule.
+
+```bash
+# Generate new rule scaffold 
+pyrotic generate rule --name <rule_name>
+```

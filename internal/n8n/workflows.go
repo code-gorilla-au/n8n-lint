@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/code-gorilla-au/n8n-lint/internal/chalk"
 )
 
 // LoadWorkflowFromFile reads a JSON-encoded workflow from a file, unmarshals it, and returns the Workflow object.
 func LoadWorkflowFromFile(path string) (Workflow, error) {
-	data, err := os.ReadFile(path)
+	data, err := os.ReadFile(filepath.Clean(path))
 	if err != nil {
 		log.Println(chalk.Red("Error reading workflow file:"), err)
 

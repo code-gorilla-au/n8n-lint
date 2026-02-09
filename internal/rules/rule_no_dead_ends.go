@@ -31,6 +31,7 @@ func (r Rule) Run(finder Finder, config RuleConfig) (Outcome, error) {
 	})
 
 	outcome := Outcome{
+		File:   finder.GetFileName(),
 		Rule:   ruleNoDeadEnds,
 		Nodes:  make([]n8n.Node, 0),
 		Report: config.Report,
@@ -56,7 +57,11 @@ func getAllowedDeadEnds(config RuleConfig) []string {
 	merged := defaultAllowedDeadEnds
 
 	if names, ok := config.Context[ruleNoDeadEndsFieldNameAllowedNames]; ok {
-		additional := names.([]string)
+		additional, ok := names.([]string)
+		if !ok {
+			additional = []string{}
+		}
+
 		merged = append(merged, additional...)
 	}
 

@@ -1,11 +1,12 @@
 package n8n
 
 import (
-	"fmt"
+	"errors"
 	"time"
 )
 
 type WorkflowTree struct {
+	File  string              `json:"file"`
 	Nodes map[string]*NodeMap `json:"nodes"`
 }
 
@@ -44,6 +45,7 @@ type Tags struct {
 }
 
 type Workflow struct {
+	FilePath    string                                    `json:"-"`
 	Name        string                                    `json:"name"`
 	Nodes       []Node                                    `json:"Nodes"`
 	Connections map[string]map[string][][]*ConnectionNode `json:"connections"`
@@ -54,4 +56,4 @@ type Workflow struct {
 	Settings    map[string]any                            `json:"settings"`
 }
 
-var ErrNodeNotFound = fmt.Errorf("node not found")
+var ErrNodeNotFound = errors.New("node not found")

@@ -1,10 +1,8 @@
 package n8n
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
-	"os"
 
 	"github.com/code-gorilla-au/n8n-lint/internal/chalk"
 )
@@ -13,6 +11,7 @@ func NewWorkflowTree(workflow Workflow) WorkflowTree {
 	nodes := make(map[string]*NodeMap)
 
 	e := WorkflowTree{
+		File:  workflow.FilePath,
 		Nodes: nodes,
 	}
 
@@ -75,10 +74,13 @@ func (w *WorkflowTree) FindAncestor(ancestor, child string) (*NodeMap, error) {
 			return n, nErr
 		}
 
-		return n, nil
 	}
 
 	return &NodeMap{}, fmt.Errorf("ancestor '%s' not found for '%s': %w", ancestor, child, ErrNodeNotFound)
+}
+
+func (w *WorkflowTree) GetFileName() string {
+	return w.File
 }
 
 // loadNodes populates the engine's node map with nodes from the workflow
@@ -128,31 +130,4 @@ func loadConnections(nodes map[string]*NodeMap, nodeId string, props map[string]
 			}
 		}
 	}
-}
-
-func LoadWorkflowFromFile(path string) (Workflow, error) {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		log.Println(chalk.Red("Error reading workflow file:"), err)
-
-		return Workflow{}, err
-	}
-
-	var workflow Workflow
-	if err = json.Unmarshal(data, &workflow); err != nil {
-		log.Println(chalk.Red("Error parsing workflow file:"), err)
-
-		return Workflow{}, err
-	}
-
-	return workflow, nil
-}
-
-func prettyPrint(nodes map[string]*NodeMap) {
-	data, err := json.MarshalIndent(nodes, "", "  ")
-	if err != nil {
-		log.Println(chalk.Red("Error pretty printing workflow: "), err)
-	}
-
-	fmt.Println(string(data))
 }

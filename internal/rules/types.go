@@ -20,6 +20,7 @@ const (
 )
 
 type Outcome struct {
+	File   string     `json:"file"`
 	Rule   Rule       `json:"rule"`
 	Nodes  []n8n.Node `json:"nodes"`
 	Report Report     `json:"report"`

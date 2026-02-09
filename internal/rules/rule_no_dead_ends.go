@@ -22,7 +22,7 @@ const (
 
 var defaultAllowedDeadEnds = []string{"STOP", "END", "DONE", "FINISH", "SUCCESS"}
 
-func (r Rule) Run(finder Finder, config RuleConfig) (Outcome, error) {
+func (r Rule) Run(finder Finder, config RuleConfig) (EvaluationOutcome, error) {
 
 	allowed := getAllowedDeadEnds(config)
 
@@ -30,7 +30,7 @@ func (r Rule) Run(finder Finder, config RuleConfig) (Outcome, error) {
 		return len(node.Children) == 0
 	})
 
-	outcome := Outcome{
+	outcome := EvaluationOutcome{
 		File:   finder.GetFileName(),
 		Rule:   ruleNoDeadEnds,
 		Nodes:  make([]n8n.Node, 0),

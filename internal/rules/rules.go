@@ -9,10 +9,10 @@ func NewRulesEngine(config Configuration) Engine {
 	}
 }
 
-func (e Engine) Run(workflow n8n.Workflow) ([]Outcome, error) {
+func (e Engine) Run(workflow n8n.Workflow) ([]EvaluationOutcome, error) {
 	finder := n8n.NewWorkflowTree(workflow)
 
-	var outcomes []Outcome
+	var outcomes []EvaluationOutcome
 
 	for _, rule := range e.rules {
 		config := e.findRuleConfig(rule.Name)

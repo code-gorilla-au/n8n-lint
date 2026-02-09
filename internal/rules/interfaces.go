@@ -10,5 +10,5 @@ type Finder interface {
 }
 
 type Runner interface {
-	Run(finder Finder, config RuleConfig) (Outcome, error)
+	Run(finder Finder, config RuleConfig) (EvaluationOutcome, error)
 }

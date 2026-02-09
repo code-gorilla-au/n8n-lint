@@ -11,19 +11,25 @@ type Engine struct {
 	rules  []Rule
 }
 
-type Report = string
+type ReportLevel = string
 
 const (
-	ReportError Report = "error"
-	ReportWarn  Report = "warn"
-	ReportOff   Report = "off"
+	ReportError ReportLevel = "error"
+	ReportWarn  ReportLevel = "warn"
+	ReportOff   ReportLevel = "off"
 )
 
-type Outcome struct {
-	File   string     `json:"file"`
-	Rule   Rule       `json:"rule"`
-	Nodes  []n8n.Node `json:"nodes"`
-	Report Report     `json:"report"`
+type FileReport struct {
+	Outcomes    []EvaluationOutcome `json:"outcomes"`
+	TotalErrors int                 `json:"total_errors"`
+	TotalWarns  int                 `json:"total_warns"`
+}
+
+type EvaluationOutcome struct {
+	File   string      `json:"file"`
+	Rule   Rule        `json:"rule"`
+	Nodes  []n8n.Node  `json:"nodes"`
+	Report ReportLevel `json:"report"`
 }
 
 type Rule struct {
@@ -39,7 +45,7 @@ type Configuration struct {
 
 type RuleConfig struct {
 	Name    string         `json:"name"`
-	Report  Report         `json:"report"`
+	Report  ReportLevel    `json:"report"`
 	Context map[string]any `json:"-"`
 }
 
@@ -57,7 +63,7 @@ func (r *RuleConfig) UnmarshalJSON(data []byte) error {
 	for key, value := range payload {
 		if key == "report" {
 			if s, ok := value.(string); ok {
-				r.Report = Report(s)
+				r.Report = ReportLevel(s)
 			}
 		}
 

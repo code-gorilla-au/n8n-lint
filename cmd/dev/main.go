@@ -12,7 +12,7 @@ func main() {
 	log.SetPrefix(chalk.Cyan("n8n-lint "))
 	log.SetFlags(log.Ldate | log.Ltime | log.Lmsgprefix)
 
-	rules.PrintReports([]rules.Outcome{
+	report := rules.NewReport([]rules.EvaluationOutcome{
 		{
 			File:   "some-file-name",
 			Report: rules.ReportError,
@@ -50,4 +50,7 @@ func main() {
 			},
 		},
 	})
+
+	report.Print()
+
 }

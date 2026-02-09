@@ -10,7 +10,53 @@ import (
 	"golang.org/x/term"
 )
 
-func PrintReports(outcomes []Outcome) {
+// NewReport generates a FileReport by evaluating a list of EvaluationOutcome and computing error and warning totals.
+func NewReport(outcomes []EvaluationOutcome) FileReport {
+	var rep FileReport
+
+	return rep.GenerateReport(outcomes)
+}
+
+// GenerateReport updates the FileReport with provided EvaluationOutcome data and computes totals for errors and warnings.
+func (f FileReport) GenerateReport(outcomes []EvaluationOutcome) FileReport {
+	f.Outcomes = outcomes
+
+	totalErrors := f.filterOutcomeBy(func(outcome EvaluationOutcome) bool {
+		return outcome.Report == ReportError
+	})
+
+	totalWarns := f.filterOutcomeBy(func(outcome EvaluationOutcome) bool {
+		return outcome.Report == ReportWarn
+	})
+
+	f.TotalErrors = len(totalErrors)
+	f.TotalWarns = len(totalWarns)
+
+	return f
+
+}
+
+// Print outputs the report data contained in the FileReport, specifically the outcomes array, to the terminal.
+func (f FileReport) Print() {
+	printReports(f.Outcomes)
+	printReportSummary(f)
+}
+
+// filterOutcomeBy filters the Outcomes of the FileReport based on the provided predicate function and returns the filtered results.
+func (f FileReport) filterOutcomeBy(fn func(outcome EvaluationOutcome) bool) []EvaluationOutcome {
+	result := make([]EvaluationOutcome, 0)
+
+	for _, outcome := range f.Outcomes {
+		if fn(outcome) {
+			result = append(result, outcome)
+		}
+	}
+
+	return result
+}
+
+// printReports outputs a formatted report for each EvaluationOutcome in the provided slice, grouped and separated by report level.
+func printReports(outcomes []EvaluationOutcome) {
 	for index, outcome := range outcomes {
 		if index == 0 {
 			log.Println(reportLineBreak(outcome.Report))
@@ -21,7 +67,13 @@ func PrintReports(outcomes []Outcome) {
 	}
 }
 
-func printReport(outcome Outcome) {
+// printReportSummary outputs a colored summary of the total errors and warnings contained in the provided FileReport.
+func printReportSummary(report FileReport) {
+	log.Printf("%s: %d  |  %s: %d\n", chalk.Red("Errors"), report.TotalErrors, chalk.Yellow("Warnings"), report.TotalWarns)
+}
+
+// printReport outputs a formatted report for the given EvaluationOutcome, including rule details and associated nodes.
+func printReport(outcome EvaluationOutcome) {
 	if outcome.Report == ReportOff {
 		return
 	}
@@ -38,9 +90,10 @@ func printReport(outcome Outcome) {
 	log.Println()
 }
 
-func reportLineBreak(report Report) string {
+// reportLineBreak generates a colored line as a string based on the provided report level for terminal output separation.
+func reportLineBreak(report ReportLevel) string {
 
-	text := strings.Repeat("=", terminalLength())
+	text := strings.Repeat("-", terminalLength())
 
 	switch report {
 	case ReportError:
@@ -52,6 +105,7 @@ func reportLineBreak(report Report) string {
 	}
 }
 
+// terminalLength calculates the terminal width considering halving for better layout and defaults to 80 on error or non-terminal.
 func terminalLength() int {
 
 	fd := int(os.Stdout.Fd())
@@ -68,7 +122,8 @@ func terminalLength() int {
 	return width - int(math.Abs(float64(width)*0.5))
 }
 
-func reportLevel(report Report) string {
+// reportLevel formats the report level as a colored string based on its severity or defaults to uppercase gray text.
+func reportLevel(report ReportLevel) string {
 	switch report {
 	case ReportError:
 		return chalk.Red("ERROR")

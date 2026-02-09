@@ -60,6 +60,7 @@ func (w *WorkflowTree) FindAncestor(ancestor, child string) (*NodeMap, error) {
 		return &NodeMap{}, fmt.Errorf("error finding parents for '%s': %w", child, err)
 	}
 
+	var foundAncestor *NodeMap
 	for _, parent := range parents {
 		if parent == nil {
 			return &NodeMap{}, fmt.Errorf("parent '%s' not found for '%s': %w", ancestor, child, ErrNodeNotFound)
@@ -69,16 +70,20 @@ func (w *WorkflowTree) FindAncestor(ancestor, child string) (*NodeMap, error) {
 			return parent, nil
 		}
 
-		n, nErr := w.FindAncestor(ancestor, parent.Node.Name)
-		if nErr != nil {
-			return n, nErr
+		foundAncestor, err = w.FindAncestor(ancestor, parent.Node.Name)
+		if err != nil {
+			return foundAncestor, err
 		}
 
+		if foundAncestor != nil {
+			return foundAncestor, nil
+		}
 	}
 
-	return &NodeMap{}, fmt.Errorf("ancestor '%s' not found for '%s': %w", ancestor, child, ErrNodeNotFound)
+	return foundAncestor, fmt.Errorf("ancestor '%s' not found for '%s': %w", ancestor, child, ErrNodeNotFound)
 }
 
+// GetFileName returns the name of the file associated with the WorkflowTree instance.
 func (w *WorkflowTree) GetFileName() string {
 	return w.File
 }
@@ -107,6 +112,7 @@ func (w *WorkflowTree) loadWorkflow(workflow Workflow) {
 	}
 }
 
+// loadConnections establishes hierarchical relationships between nodes based on their connections.
 func loadConnections(nodes map[string]*NodeMap, nodeId string, props map[string][][]*ConnectionNode) {
 	for _, main := range props {
 		for _, sub := range main {

@@ -6,6 +6,11 @@ import (
 	"github.com/code-gorilla-au/n8n-lint/internal/n8n"
 )
 
+type Engine struct {
+	config Configuration
+	rules  []Rule
+}
+
 type Report = string
 
 const (

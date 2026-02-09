@@ -50,6 +50,8 @@ type Workflow struct {
 	PinData     map[string]any                            `json:"pinData"`
 	ID          string                                    `json:"id"`
 	Tags        []Tags                                    `json:"tags"`
+	Meta        map[string]any                            `json:"meta"`
+	Settings    map[string]any                            `json:"settings"`
 }
 
 var ErrNodeNotFound = fmt.Errorf("node not found")

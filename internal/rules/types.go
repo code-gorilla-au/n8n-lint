@@ -4,57 +4,105 @@ import (
 	"github.com/code-gorilla-au/n8n-lint/internal/n8n"
 )
 
+// Engine represents a rules engine that evaluates workflows against a set of predefined validation rules.
 type Engine struct {
 	config Configuration
 	rules  []Rule
 }
 
+// ReportLevel defines the reporting severity level as a string.
 type ReportLevel = string
 
 const (
+
+	// ReportError represents the "error" severity level in the reporting system, used to flag critical issues.
 	ReportError ReportLevel = "error"
-	ReportWarn  ReportLevel = "warn"
-	ReportOff   ReportLevel = "off"
+
+	// ReportWarn represents the "warn" severity level in the reporting system, used to flag non-critical issues or warnings.
+	ReportWarn ReportLevel = "warn"
+
+	// ReportOff represents the "off" severity level, indicating that no reporting or logging should occur.
+	ReportOff ReportLevel = "off"
 )
 
+// FileReport represents a summary report containing evaluation outcomes and counts of errors and warnings.
 type FileReport struct {
-	Outcomes    []EvaluationOutcome `json:"outcomes"`
-	TotalErrors int                 `json:"total_errors"`
-	TotalWarns  int                 `json:"total_warns"`
+
+	// Outcomes represent a list of evaluation results, each detailing the outcome of a specific rule applied to a file.
+	Outcomes []EvaluationOutcome `json:"outcomes"`
+
+	// TotalErrors specifies the total count of evaluation outcomes that are classified as errors.
+	TotalErrors int `json:"total_errors"`
+
+	// TotalWarns specifies the total count of evaluation outcomes that are classified as warnings.
+	TotalWarns int `json:"total_warns"`
 }
 
+// EvaluationOutcome represents the result of a rule evaluation on a file, including matched nodes and reporting level.
 type EvaluationOutcome struct {
-	File   string      `json:"file"`
-	Rule   Rule        `json:"rule"`
-	Nodes  []n8n.Node  `json:"nodes"`
+
+	// File specifies the file name where the evaluation was conducted, provided as a JSON-encoded string.
+	File string `json:"file"`
+
+	// Rule represents a validation rule, including its name and description, applied to evaluate workflow files.
+	Rule Rule `json:"rule"`
+
+	// Nodes contain a list of workflow nodes that matched the evaluation criteria, encoded as an array of n8n.Node.
+	Nodes []n8n.Node `json:"nodes"`
+
+	// Report specifies the severity level of the evaluation outcome, which determines how the result should be reported.
 	Report ReportLevel `json:"report"`
 }
 
+// Rule represents a validation rule with a name and description used for workflow evaluation and reporting.
 type Rule struct {
-	Name        string `json:"name"`
+
+	// Name specifies the name of the validation rule, used to identify its purpose and function.
+	Name string `json:"name"`
+
+	// Description provides a detailed explanation of the validation rule's purpose and its evaluation criteria.
 	Description string `json:"description"`
 }
 
+// Configuration represents the main configuration entity for defining validation rules and file scanning criteria.
 type Configuration struct {
-	Rules   Ruleset  `json:"rules"`
-	Ignore  []string `json:"ignore"`
+
+	// Rules defines the set of validation rules to be applied, represented as a Ruleset structure.
+	Rules Ruleset `json:"rules"`
+
+	// Ignore specifies a list of patterns or file paths to exclude from processing during configuration-based operations.
+	Ignore []string `json:"ignore"`
+
+	// Include specifies a list of patterns or file paths to include for processing during configuration-based operations.
 	Include []string `json:"include"`
 }
 
+// Ruleset represents a collection of validation rules, including configuration for handling dead-end nodes in workflows.
 type Ruleset struct {
+
+	// NoDeadEnds specifies the configuration for processing and validating workflows to ensure no dead-end nodes are present.
 	NoDeadEnds NoDeadEndsConfig `json:"no_dead_ends"`
 }
 
+// BaseRuleConfig defines the structure for configuring a basic rule, including its name and reporting level.
 type BaseRuleConfig struct {
-	Name   string      `json:"name"`
+
+	// Name specifies the identifier or label for the rule configuration, used for distinguishing different rule setups.
+	Name string `json:"name"`
+
+	// Report defines the reporting severity level for the rule.
 	Report ReportLevel `json:"report"`
 }
 
+// ReportLevel returns the reporting severity level of the configuration.
 func (c BaseRuleConfig) ReportLevel() ReportLevel {
 	return c.Report
 }
 
+// NoDeadEndsConfig defines the configuration for detecting and handling dead-end nodes in workflows.
 type NoDeadEndsConfig struct {
 	BaseRuleConfig
+
+	// AllowedNames specifies a list of node names that are exempt from being treated as dead-end nodes in the workflow validation.
 	AllowedNames []string `json:"allowed_names"`
 }

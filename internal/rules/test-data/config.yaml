@@ -1,0 +1,9 @@
+rules:
+  - name: "no-dead-ends"
+    report: "error"
+  - name: "no-hardcoded-secrets"
+    report: "warn"
+ignore:
+  - "node_modules/**"
+include:
+  - "workflows/**/*.json"

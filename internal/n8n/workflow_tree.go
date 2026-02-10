@@ -7,6 +7,7 @@ import (
 	"github.com/code-gorilla-au/n8n-lint/internal/chalk"
 )
 
+// NewWorkflowTree initializes a WorkflowTree from the given Workflow, loading its nodes and hierarchical structure.
 func NewWorkflowTree(workflow Workflow) WorkflowTree {
 	nodes := make(map[string]*NodeMap)
 
@@ -21,6 +22,7 @@ func NewWorkflowTree(workflow Workflow) WorkflowTree {
 	return e
 }
 
+// FindBy filters nodes from the WorkflowTree based on the provided predicate function and returns a slice of matching nodes.
 func (w *WorkflowTree) FindBy(fn func(node *NodeMap) bool) []*NodeMap {
 	result := make([]*NodeMap, 0)
 

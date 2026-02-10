@@ -12,6 +12,7 @@ require (
 require (
 	github.com/code-gorilla-au/env v1.1.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/goccy/go-yaml v1.19.2 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	golang.org/x/sys v0.40.0 // indirect

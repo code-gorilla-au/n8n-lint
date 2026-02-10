@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"path/filepath"
 
 	"github.com/code-gorilla-au/n8n-lint/internal/chalk"
 	"github.com/code-gorilla-au/n8n-lint/internal/n8n"
@@ -9,47 +10,29 @@ import (
 )
 
 func main() {
+	configFile := filepath.Clean("cmd/dev/config.yaml")
+	file := filepath.Clean("internal/rules/test-data/dead_ends_invalid_custom.json")
+
+	config, err := rules.LoadConfigFromFile(configFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println(config)
+
+	workflow, wErr := n8n.LoadWorkflowFromFile(file)
+	if wErr != nil {
+		log.Fatal(wErr)
+	}
+
 	log.SetPrefix(chalk.Cyan("n8n-lint "))
 	log.SetFlags(log.Ldate | log.Ltime | log.Lmsgprefix)
 
-	report := rules.NewReport([]rules.EvaluationOutcome{
-		{
-			File:   "some-file-name",
-			Report: rules.ReportError,
-			Rule: rules.Rule{
-				Name:        "example_rule",
-				Description: "Example rule description"},
-			Nodes: []n8n.Node{
-				{
-					ID:          "",
-					Name:        "example_node",
-					Type:        "",
-					Position:    nil,
-					Parameters:  nil,
-					Credentials: nil,
-					TypeVersion: 0,
-				},
-			},
-		},
-		{
-			File:   "some-file-name",
-			Report: rules.ReportError,
-			Rule: rules.Rule{
-				Name:        "example_rule",
-				Description: "Example rule description"},
-			Nodes: []n8n.Node{
-				{
-					ID:          "",
-					Name:        "example_node",
-					Type:        "",
-					Position:    nil,
-					Parameters:  nil,
-					Credentials: nil,
-					TypeVersion: 0,
-				},
-			},
-		},
-	})
+	e := rules.NewRulesEngine(config)
+	report, err := e.Run(workflow)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	report.Print()
 

@@ -9,7 +9,7 @@ func NewRulesEngine(config Configuration) Engine {
 	}
 }
 
-func (e Engine) Run(workflow n8n.Workflow) ([]EvaluationOutcome, error) {
+func (e Engine) Run(workflow n8n.Workflow) (FileReport, error) {
 	finder := n8n.NewWorkflowTree(workflow)
 
 	var outcomes []EvaluationOutcome
@@ -19,13 +19,13 @@ func (e Engine) Run(workflow n8n.Workflow) ([]EvaluationOutcome, error) {
 
 		outcome, err := rule.Run(&finder, config)
 		if err != nil {
-			return outcomes, err
+			return FileReport{}, err
 		}
 
 		outcomes = append(outcomes, outcome)
 	}
 
-	return outcomes, nil
+	return NewReport(outcomes), nil
 }
 
 func (e Engine) findRuleConfig(name string) RuleConfig {

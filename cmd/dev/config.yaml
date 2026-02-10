@@ -1,0 +1,9 @@
+rules:
+  - name: "NO_DEAD_ENDS"
+    report: "error"
+    allowed_names:
+      - CUSTOM_STOP
+ignore:
+  - "node_modules/**"
+include:
+  - "workflows/**/*.json"

@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/code-gorilla-au/n8n-lint/internal/chalk"
-	"gopkg.in/yaml.v3"
+	"sigs.k8s.io/yaml"
 )
 
 // LoadConfigFromFile loads a configuration from the specified file path and returns it as a Configuration struct.

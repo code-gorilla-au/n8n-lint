@@ -15,9 +15,8 @@ func (e Engine) Run(workflow n8n.Workflow) (FileReport, error) {
 	var outcomes []EvaluationOutcome
 
 	for _, rule := range e.rules {
-		config := e.findRuleConfig(rule.Name)
 
-		outcome, err := rule.Run(&finder, config)
+		outcome, err := rule.Run(&finder, e.config.Rules)
 		if err != nil {
 			return FileReport{}, err
 		}
@@ -26,17 +25,4 @@ func (e Engine) Run(workflow n8n.Workflow) (FileReport, error) {
 	}
 
 	return NewReport(outcomes), nil
-}
-
-func (e Engine) findRuleConfig(name string) RuleConfig {
-	for _, rule := range e.config.Rules {
-		if rule.Name == name {
-			return rule
-		}
-	}
-
-	return RuleConfig{
-		Report:  ReportError,
-		Context: nil,
-	}
 }

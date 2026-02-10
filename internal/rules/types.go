@@ -1,8 +1,6 @@
 package rules
 
 import (
-	"encoding/json"
-
 	"github.com/code-gorilla-au/n8n-lint/internal/n8n"
 )
 
@@ -38,72 +36,25 @@ type Rule struct {
 }
 
 type Configuration struct {
-	Rules   []RuleConfig `json:"rules"`
-	Ignore  []string     `json:"ignore"`
-	Include []string     `json:"include"`
+	Rules   Ruleset  `json:"rules"`
+	Ignore  []string `json:"ignore"`
+	Include []string `json:"include"`
 }
 
-type RuleConfig struct {
-	Name    string         `json:"name"`
-	Report  ReportLevel    `json:"report"`
-	Context map[string]any `json:"-"`
+type Ruleset struct {
+	NoDeadEnds NoDeadEndsConfig `json:"no_dead_ends"`
 }
 
-func (r *RuleConfig) UnmarshalJSON(data []byte) error {
-	payload := make(map[string]any)
-
-	if err := json.Unmarshal(data, &payload); err != nil {
-		return err
-	}
-
-	if r.Context == nil {
-		r.Context = make(map[string]any)
-	}
-
-	for key, value := range payload {
-		if key == "report" {
-			if s, ok := value.(string); ok {
-				r.Report = ReportLevel(s)
-			}
-		}
-
-		if key == "name" {
-			if s, ok := value.(string); ok {
-				r.Name = s
-			}
-		}
-
-		r.Context[key] = value
-	}
-
-	return nil
+type BaseRuleConfig struct {
+	Name   string      `json:"name"`
+	Report ReportLevel `json:"report"`
 }
 
-// MarshalJSON - custom JSON marshalling to include context properties within the root
-func (r *RuleConfig) MarshalJSON() ([]byte, error) {
-	type envelope RuleConfig // prevent recursion
+func (c BaseRuleConfig) ReportLevel() ReportLevel {
+	return c.Report
+}
 
-	data, err := json.Marshal(envelope(*r))
-	if err != nil {
-		return data, err
-	}
-
-	var payload map[string]json.RawMessage
-	err = json.Unmarshal(data, &payload)
-	if err != nil {
-		return data, err
-	}
-
-	for k, v := range r.Context {
-		if _, ok := payload[k]; ok {
-			continue
-		}
-		tmpData, tmpErr := json.Marshal(v)
-		if tmpErr != nil {
-			return tmpData, err
-		}
-		payload[k] = tmpData
-	}
-
-	return json.Marshal(payload)
+type NoDeadEndsConfig struct {
+	BaseRuleConfig
+	AllowedNames []string `json:"allowed_names"`
 }

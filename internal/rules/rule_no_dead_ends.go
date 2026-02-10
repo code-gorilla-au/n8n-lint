@@ -16,13 +16,7 @@ var ruleNoDeadEnds = Rule{
 	Description: "Find nodes with no incoming or outgoing connections. Indicating incomplete, untested, or unused nodes. Unused nodes causes confusion to the reviewers, cause drift in requirements and hide information. Optionally, provide a list of node names to exclude from the dead-end check via the 'allowed_names' in the configuration file.",
 }
 
-const (
-	ruleNoDeadEndsFieldNameAllowedNames = "allowed_names"
-)
-
-var defaultAllowedDeadEnds = []string{"STOP", "END", "DONE", "FINISH", "SUCCESS"}
-
-func (r Rule) Run(finder Finder, config RuleConfig) (EvaluationOutcome, error) {
+func (r Rule) Run(finder Finder, config Ruleset) (EvaluationOutcome, error) {
 
 	allowed := getAllowedDeadEnds(config)
 
@@ -34,36 +28,33 @@ func (r Rule) Run(finder Finder, config RuleConfig) (EvaluationOutcome, error) {
 		File:   finder.GetFileName(),
 		Rule:   ruleNoDeadEnds,
 		Nodes:  make([]n8n.Node, 0),
-		Report: config.Report,
+		Report: config.NoDeadEnds.ReportLevel(),
 	}
 
 	for _, node := range nodes {
-		if slices.Contains(allowed, strings.ToUpper(node.Node.Name)) && len(node.Parent) > 0 {
+		if slices.Contains(allowed, strings.ToUpper(node.Node.Name)) {
 			continue
 		}
 
 		outcome.Nodes = append(outcome.Nodes, node.Node)
 	}
 
-	outcome.Report = evaluateReportLevel(config, outcome)
+	outcome.Report = evaluateReportLevel(config.NoDeadEnds, outcome)
 
 	return outcome, nil
 }
 
 var _ = Runner(&ruleNoDeadEnds)
 
+var defaultAllowedDeadEnds = []string{"STOP", "END", "DONE", "FINISH", "SUCCESS"}
+
 // getAllowedDeadEnds retrieves the list of allowed dead-end node names from the configuration or defaults if not provided.
-func getAllowedDeadEnds(config RuleConfig) []string {
+func getAllowedDeadEnds(config Ruleset) []string {
 	merged := defaultAllowedDeadEnds
 
-	if names, ok := config.Context[ruleNoDeadEndsFieldNameAllowedNames]; ok {
-		additional, ok := names.([]string)
-		if !ok {
-			additional = []string{}
-		}
+	customNames := config.NoDeadEnds.AllowedNames
 
-		merged = append(merged, additional...)
-	}
+	merged = append(merged, customNames...)
 
 	return merged
 }

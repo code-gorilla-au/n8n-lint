@@ -11,7 +11,7 @@ import (
 
 func main() {
 	configFile := filepath.Clean("cmd/dev/config.yaml")
-	file := filepath.Clean("internal/rules/test-data/infinate_loop.json")
+	file := filepath.Clean("internal/rules/test-data/infinite_loop.json")
 
 	config, err := rules.LoadConfigFromFile(configFile)
 	if err != nil {

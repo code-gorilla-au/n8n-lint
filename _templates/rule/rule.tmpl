@@ -14,6 +14,16 @@ var rule{{ .Name | casePascal }} = Rule{
     Name: ruleName{{ .Name | casePascal }},
     Description: ruleDescription{{ .Name | casePascal }},
     ruleFn: func(finder Finder, config Ruleset) (EvaluationOutcome, error) {
+
+		outcome := EvaluationOutcome{
+			File:            finder.GetFileName(),
+			RuleName:        ruleName{{ .Name | casePascal }},
+			RuleDescription: ruleDescription{{ .Name | casePascal }},
+			Nodes:           make([]n8n.Node, 0),
+			Report:          config.{{ .Name | casePascal }}.ReportLevel(),
+		}
+
+		return outcome, nil
         return EvaluationOutcome{}, nil
     },
 }

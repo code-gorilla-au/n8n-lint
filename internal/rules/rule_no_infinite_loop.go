@@ -1,7 +1,7 @@
 package rules
 
 import (
-	"encoding/json"
+	"errors"
 	"log"
 
 	"github.com/code-gorilla-au/n8n-lint/internal/n8n"
@@ -28,13 +28,18 @@ var ruleNoInfiniteLoop = Rule{
 		circularNodes := finder.FindBy(func(node *n8n.NodeMap) bool {
 
 			for _, child := range node.Children {
-				data, err := json.MarshalIndent(child.Node, "", "  ")
-				if err != nil {
-					return false
-				}
-				log.Println(string(data))
 
-				if child.Node.Name == node.Node.Name {
+				if node.Node.Name == child.Node.Name {
+					return true
+				}
+
+				match, err := child.FindChild(child.Node.Name)
+				if err != nil && errors.Is(err, n8n.ErrNodeNotFound) {
+					continue
+				}
+
+				if match != nil {
+					log.Println("Circular reference found:", node.Node.Name, child.Node.Name)
 					return true
 				}
 

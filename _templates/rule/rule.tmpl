@@ -12,9 +12,9 @@ const (
 
 var rule{{ .Name | casePascal }} = Rule{
     Name: ruleName{{ .Name | casePascal }},
-    Description: "TODO",
-    ruleFn: func(workflow n8n.Workflow, config Ruleset) (EvaluationOutcome, error) {
+    Description: ruleDescription{{ .Name | casePascal }},
+    ruleFn: func(finder Finder, config Ruleset) (EvaluationOutcome, error) {
         return EvaluationOutcome{}, nil
-    }
+    },
 }
 

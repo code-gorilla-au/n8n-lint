@@ -1,7 +1,0 @@
----
-to: internal/rules/types.go
-after: //RuleSetConfig
----
-
-// {{ .Name | casePascal }} defines the structure for the {{ .Name | casePascal }} rule.
-{{ .Name | casePascal }} {{ .Name | casePascal }}Config `json:"{{ .Name | caseSnake }}"`

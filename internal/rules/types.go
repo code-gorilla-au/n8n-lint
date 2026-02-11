@@ -85,7 +85,8 @@ type Configuration struct {
 // Ruleset represents a collection of validation rules, including configuration for handling dead-end nodes in workflows.
 type Ruleset struct {
 
-	//RuleSetConfig
+	// NoInfiniteLoop specifies the configuration for detecting and preventing infinite loops in workflow processing.
+	NoInfiniteLoop NoInfiniteLoopConfig `json:"no_infinite_loop"`
 
 	// NoDeadEnds specifies the configuration for processing and validating workflows to ensure no dead-end nodes are present.
 	NoDeadEnds NoDeadEndsConfig `json:"no_dead_ends"`
@@ -114,4 +115,9 @@ type NoDeadEndsConfig struct {
 
 	// AllowedNames specifies a list of node names that are exempt from being treated as dead-end nodes in the workflow validation.
 	AllowedNames []string `json:"allowed_names"`
+}
+
+// NoInfiniteLoopConfig defines the configuration for detecting and handling no_infinite_loop.
+type NoInfiniteLoopConfig struct {
+	BaseRuleConfig
 }

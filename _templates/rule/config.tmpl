@@ -1,10 +1,9 @@
 ---
 to: internal/rules/types.go
-after: //SpecificRuleConfig
+append: true
 ---
 
-
-// {{ .Name | casePascal }} defines the configuration for detecting and handling {{ .Name | caseSnake }}.
+// {{ .Name | casePascal }}Config defines the configuration for detecting and handling {{ .Name | caseSnake }}.
 type {{ .Name | casePascal }}Config struct {
 	BaseRuleConfig
 

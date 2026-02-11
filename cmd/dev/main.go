@@ -11,14 +11,12 @@ import (
 
 func main() {
 	configFile := filepath.Clean("cmd/dev/config.yaml")
-	file := filepath.Clean("internal/rules/test-data/dead_ends_invalid_custom.json")
+	file := filepath.Clean("internal/rules/test-data/infinate_loop.json")
 
 	config, err := rules.LoadConfigFromFile(configFile)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	log.Println(config)
 
 	workflow, wErr := n8n.LoadWorkflowFromFile(file)
 	if wErr != nil {

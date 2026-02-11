@@ -8,43 +8,42 @@ import (
 )
 
 const (
-	ruleNameNoDeadEnds = "NO_DEAD_ENDS"
+	ruleNameNoDeadEnds        = "NO_DEAD_ENDS"
+	ruleDescriptionNoDeadEnds = "Find nodes with no incoming or outgoing connections. Indicating incomplete, untested, or unused nodes. Unused nodes causes confusion to the reviewers, cause drift in requirements and hide information."
 )
 
 var ruleNoDeadEnds = Rule{
 	Name:        ruleNameNoDeadEnds,
-	Description: "Find nodes with no incoming or outgoing connections. Indicating incomplete, untested, or unused nodes. Unused nodes causes confusion to the reviewers, cause drift in requirements and hide information. Optionally, provide a list of node names to exclude from the dead-end check via the 'allowed_names' in the configuration file.",
-}
+	Description: ruleDescriptionNoDeadEnds,
+	ruleFn: func(finder Finder, config Ruleset) (EvaluationOutcome, error) {
 
-func (r Rule) Run(finder Finder, config Ruleset) (EvaluationOutcome, error) {
+		allowed := getAllowedDeadEnds(config)
 
-	allowed := getAllowedDeadEnds(config)
+		nodes := finder.FindBy(func(node *n8n.NodeMap) bool {
+			return len(node.Children) == 0
+		})
 
-	nodes := finder.FindBy(func(node *n8n.NodeMap) bool {
-		return len(node.Children) == 0
-	})
-
-	outcome := EvaluationOutcome{
-		File:   finder.GetFileName(),
-		Rule:   ruleNoDeadEnds,
-		Nodes:  make([]n8n.Node, 0),
-		Report: config.NoDeadEnds.ReportLevel(),
-	}
-
-	for _, node := range nodes {
-		if slices.Contains(allowed, strings.ToUpper(node.Node.Name)) {
-			continue
+		outcome := EvaluationOutcome{
+			File:            finder.GetFileName(),
+			RuleName:        ruleNameNoDeadEnds,
+			RuleDescription: ruleDescriptionNoDeadEnds,
+			Nodes:           make([]n8n.Node, 0),
+			Report:          config.NoDeadEnds.ReportLevel(),
 		}
 
-		outcome.Nodes = append(outcome.Nodes, node.Node)
-	}
+		for _, node := range nodes {
+			if slices.Contains(allowed, strings.ToUpper(node.Node.Name)) {
+				continue
+			}
 
-	outcome.Report = evaluateReportLevel(config.NoDeadEnds, outcome)
+			outcome.Nodes = append(outcome.Nodes, node.Node)
+		}
 
-	return outcome, nil
+		outcome.Report = evaluateReportLevel(config.NoDeadEnds, outcome)
+
+		return outcome, nil
+	},
 }
-
-var _ = Runner(&ruleNoDeadEnds)
 
 var defaultAllowedDeadEnds = []string{"STOP", "END", "DONE", "FINISH", "SUCCESS"}
 

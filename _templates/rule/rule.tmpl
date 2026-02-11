@@ -7,16 +7,14 @@ import "github.com/code-gorilla-au/n8n-lint/internal/n8n"
 
 const (
     ruleName{{ .Name | casePascal }} = "{{ .Name | caseSnake | caseTitle }}"
+    ruleDescription{{ .Name | casePascal }} = "TODO"
 )
 
 var rule{{ .Name | casePascal }} = Rule{
     Name: ruleName{{ .Name | casePascal }},
     Description: "TODO",
+    ruleFn: func(workflow n8n.Workflow, config Ruleset) (EvaluationOutcome, error) {
+        return EvaluationOutcome{}, nil
+    }
 }
 
-
-func (r Rule) Run(workflow n8n.Workflow, config RuleConfig) Outcome {
-    return Outcome{}
-}
-
-var _ = Runner(&rule{{ .Name | casePascal }})

@@ -81,7 +81,7 @@ func printReport(outcome EvaluationOutcome) {
 	level := reportLevel(outcome.Report)
 
 	log.Println()
-	log.Printf("[%s] %s: %s\n", level, chalk.Blue(outcome.Rule.Name), outcome.Rule.Description)
+	log.Printf("[%s] %s: %s\n", level, chalk.Blue(outcome.RuleName), outcome.RuleDescription)
 	log.Printf("[%s] %s", level, outcome.File)
 
 	for _, node := range outcome.Nodes {

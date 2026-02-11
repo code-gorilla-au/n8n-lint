@@ -44,8 +44,11 @@ type EvaluationOutcome struct {
 	// File specifies the file name where the evaluation was conducted, provided as a JSON-encoded string.
 	File string `json:"file"`
 
-	// Rule represents a validation rule, including its name and description, applied to evaluate workflow files.
-	Rule Rule `json:"rule"`
+	// RuleName specifies the name of the validation rule applied during the evaluation process.
+	RuleName string `json:"rule_name"`
+
+	// RuleDescription provides a concise explanation of the validation rule and its intended purpose.
+	RuleDescription string `json:"rule_description"`
 
 	// Nodes contain a list of workflow nodes that matched the evaluation criteria, encoded as an array of n8n.Node.
 	Nodes []n8n.Node `json:"nodes"`
@@ -62,6 +65,8 @@ type Rule struct {
 
 	// Description provides a detailed explanation of the validation rule's purpose and its evaluation criteria.
 	Description string `json:"description"`
+
+	ruleFn func(finder Finder, config Ruleset) (EvaluationOutcome, error)
 }
 
 // Configuration represents the main configuration entity for defining validation rules and file scanning criteria.
@@ -79,6 +84,8 @@ type Configuration struct {
 
 // Ruleset represents a collection of validation rules, including configuration for handling dead-end nodes in workflows.
 type Ruleset struct {
+
+	//RuleSetConfig
 
 	// NoDeadEnds specifies the configuration for processing and validating workflows to ensure no dead-end nodes are present.
 	NoDeadEnds NoDeadEndsConfig `json:"no_dead_ends"`
@@ -98,6 +105,8 @@ type BaseRuleConfig struct {
 func (c BaseRuleConfig) ReportLevel() ReportLevel {
 	return c.Report
 }
+
+//SpecificRuleConfig
 
 // NoDeadEndsConfig defines the configuration for detecting and handling dead-end nodes in workflows.
 type NoDeadEndsConfig struct {

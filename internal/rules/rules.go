@@ -26,3 +26,9 @@ func (e Engine) Run(workflow n8n.Workflow) (FileReport, error) {
 
 	return NewReport(outcomes), nil
 }
+
+func (r Rule) Run(finder Finder, config Ruleset) (EvaluationOutcome, error) {
+	return r.ruleFn(finder, config)
+}
+
+var _ = Runner(&ruleNoDeadEnds)

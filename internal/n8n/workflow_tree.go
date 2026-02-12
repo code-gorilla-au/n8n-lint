@@ -57,32 +57,24 @@ func (w *WorkflowTree) FindParents(name string) ([]*NodeMap, error) {
 
 // FindAncestor retrieves the specified ancestor node of a given child node by traversing the node hierarchy. Returns an error if the ancestor is not found.
 func (w *WorkflowTree) FindAncestor(ancestor, child string) (*NodeMap, error) {
-	parents, err := w.FindParents(child)
+	c, err := w.Find(child)
 	if err != nil {
-		return &NodeMap{}, fmt.Errorf("error finding parents for '%s': %w", child, err)
+		return nil, err
 	}
 
-	var foundAncestor *NodeMap
-	for _, parent := range parents {
-		if parent == nil {
-			return &NodeMap{}, fmt.Errorf("parent '%s' not found for '%s': %w", ancestor, child, ErrNodeNotFound)
-		}
-
-		if parent.Node.Name == ancestor {
-			return parent, nil
-		}
-
-		foundAncestor, err = w.FindAncestor(ancestor, parent.Node.Name)
-		if err != nil {
-			return foundAncestor, err
-		}
-
-		if foundAncestor != nil {
-			return foundAncestor, nil
-		}
+	if c == nil {
+		return nil, fmt.Errorf("%s: %w", child, ErrNodeNotFound)
 	}
 
-	return foundAncestor, fmt.Errorf("ancestor '%s' not found for '%s': %w", ancestor, child, ErrNodeNotFound)
+	seen := make(map[string]struct{})
+	seen[c.Node.Name] = struct{}{}
+
+	a, err := c.FindAncestor(ancestor, seen)
+	if err != nil {
+		return nil, err
+	}
+
+	return a, nil
 }
 
 // GetFileName returns the name of the file associated with the WorkflowTree instance.

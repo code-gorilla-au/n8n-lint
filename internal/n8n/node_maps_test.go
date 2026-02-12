@@ -71,3 +71,75 @@ func TestNodeMap_FindChild(t *testing.T) {
 		Run()
 	odize.AssertNoError(t, err)
 }
+
+func TestNodeMap_FindAncestor(t *testing.T) {
+	group := odize.NewGroup(t, nil)
+
+	node1 := &NodeMap{
+		Node: Node{Name: "Node1"},
+	}
+	node2 := &NodeMap{
+		Node: Node{Name: "Node2"},
+	}
+	node3 := &NodeMap{
+		Node: Node{Name: "Node3"},
+	}
+
+	node2.Parent = []*NodeMap{node1}
+	node3.Parent = []*NodeMap{node2}
+
+	err := group.
+		Test("should find a direct parent", func(t *testing.T) {
+			seen := make(map[string]struct{})
+			seen[node2.Node.Name] = struct{}{}
+
+			ancestor, err := node2.FindAncestor("Node1", seen)
+			odize.AssertNoError(t, err)
+			odize.AssertEqual(t, "Node1", ancestor.Node.Name)
+		}).
+		Test("should find a deep ancestor", func(t *testing.T) {
+			seen := make(map[string]struct{})
+			seen[node3.Node.Name] = struct{}{}
+
+			ancestor, err := node3.FindAncestor("Node1", seen)
+			odize.AssertNoError(t, err)
+			odize.AssertEqual(t, "Node1", ancestor.Node.Name)
+		}).
+		Test("should return error if ancestor does not exist", func(t *testing.T) {
+			seen := make(map[string]struct{})
+			seen[node3.Node.Name] = struct{}{}
+
+			_, err := node3.FindAncestor("NonExistent", seen)
+			odize.AssertTrue(t, errors.Is(err, ErrNodeNotFound))
+		}).
+		Test("should handle circular dependencies", func(t *testing.T) {
+
+			node1.Parent = []*NodeMap{node3}
+
+			seen := make(map[string]struct{})
+			seen[node1.Node.Name] = struct{}{}
+			_, err := node1.FindAncestor("NonExistent", seen)
+			odize.AssertTrue(t, errors.Is(err, ErrNodeNotFound))
+
+		}).
+		Test("should handle branches where one leads to a dead end/cycle and another leads to the ancestor", func(t *testing.T) {
+
+			nodeA := &NodeMap{Node: Node{Name: "NodeA"}}
+			nodeB := &NodeMap{Node: Node{Name: "NodeB"}}
+			nodeC := &NodeMap{Node: Node{Name: "NodeC"}}
+			ancestorNode := &NodeMap{Node: Node{Name: "Ancestor"}}
+
+			nodeA.Parent = []*NodeMap{nodeB, nodeC}
+			nodeB.Parent = []*NodeMap{ancestorNode}
+			nodeC.Parent = []*NodeMap{nodeA}
+
+			seen := make(map[string]struct{})
+			seen[nodeA.Node.Name] = struct{}{}
+
+			found, err := nodeA.FindAncestor("Ancestor", seen)
+			odize.AssertNoError(t, err)
+			odize.AssertEqual(t, "Ancestor", found.Node.Name)
+		}).
+		Run()
+	odize.AssertNoError(t, err)
+}

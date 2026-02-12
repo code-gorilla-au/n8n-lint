@@ -18,3 +18,27 @@ func (n *NodeMap) FindChild(name string) (*NodeMap, error) {
 
 	return nil, fmt.Errorf("%s: %w", name, ErrNodeNotFound)
 }
+
+func (n *NodeMap) FindAncestor(ancestor string, seen map[string]struct{}) (*NodeMap, error) {
+
+	if n.Parent == nil {
+		return nil, fmt.Errorf("parent '%s' not found for '%s': %w", ancestor, n.Node.Name, ErrNodeNotFound)
+	}
+
+	for _, parent := range n.Parent {
+		if _, ok := seen[parent.Node.Name]; ok {
+			continue
+		}
+
+		if parent.Node.Name == ancestor {
+			return parent, nil
+		}
+
+		pp, err := parent.FindAncestor(ancestor, seen)
+		if err == nil {
+			return pp, nil
+		}
+	}
+
+	return nil, fmt.Errorf("%s: %w", ancestor, ErrNodeNotFound)
+}

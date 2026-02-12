@@ -9,23 +9,34 @@ import (
 
 func TestNodeMap_FindChild(t *testing.T) {
 	group := odize.NewGroup(t, nil)
+	node1 := Node{
+		ID:   "1",
+		Name: "IF",
+	}
+
+	node3 := Node{
+		ID:   "3",
+		Name: "DONE",
+	}
+
+	node2 := Node{
+		ID:   "2",
+		Name: "If2",
+	}
+
 	node := NodeMap{
-		Node: Node{
-			ID:   "`",
-			Name: "IF",
-		},
+		Node:   node1,
 		Parent: nil,
 		Children: []*NodeMap{
 			{
-				Node: Node{
-					ID:   "2",
-					Name: "If2",
-				},
+				Node: node2,
 				Children: []*NodeMap{
 					{
-						Node: Node{
-							ID:   "3",
-							Name: "DONE",
+						Node: node3,
+						Children: []*NodeMap{
+							{
+								Node: node1,
+							},
 						},
 					},
 				},
@@ -38,7 +49,7 @@ func TestNodeMap_FindChild(t *testing.T) {
 
 			child, err := node.FindChild("If2")
 			odize.AssertNoError(t, err)
-			odize.AssertEqual(t, "If", child.Node.Name)
+			odize.AssertEqual(t, "If2", child.Node.Name)
 		}).
 		Test("should find a deep child", func(t *testing.T) {
 
@@ -50,6 +61,12 @@ func TestNodeMap_FindChild(t *testing.T) {
 
 			_, err := node.FindChild("NonExistentNode")
 			odize.AssertTrue(t, errors.Is(err, ErrNodeNotFound))
+		}).
+		Test("should return reference to self", func(t *testing.T) {
+
+			child, err := node.FindChild("IF")
+			odize.AssertNoError(t, err)
+			odize.AssertEqual(t, "IF", child.Node.Name)
 		}).
 		Run()
 	odize.AssertNoError(t, err)

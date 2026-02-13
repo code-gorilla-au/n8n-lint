@@ -56,7 +56,7 @@ func (w *WorkflowTree) FindParents(name string) ([]*NodeMap, error) {
 }
 
 // FindAncestor retrieves the specified ancestor node of a given child node by traversing the node hierarchy. Returns an error if the ancestor is not found.
-func (w *WorkflowTree) FindAncestor(ancestor, child string) (*NodeMap, error) {
+func (w *WorkflowTree) FindAncestor(ancestor, child string, opts ...NodeMapFuncOpts) (*NodeMap, error) {
 	c, err := w.Find(child)
 	if err != nil {
 		return nil, err

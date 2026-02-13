@@ -64,14 +64,14 @@ type NodeMapOptions struct {
 
 type NodeMapFuncOpts func(*NodeMapOptions)
 
-func WithNodeMapOptions(opts ...NodeMapFuncOpts) *NodeMapOptions {
+func WithNodeMapOptions(opts ...NodeMapFuncOpts) NodeMapOptions {
 	var options NodeMapOptions
 
 	for _, opt := range opts {
 		opt(&options)
 	}
 
-	return &options
+	return options
 }
 
 func NodeMapOptErrOnInfiniteLoop(options *NodeMapOptions) {

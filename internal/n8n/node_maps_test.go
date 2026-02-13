@@ -119,7 +119,7 @@ func TestNodeMap_FindAncestor(t *testing.T) {
 			_, err := node1.FindAncestor("NonExistent", seen, NodeMapOptErrOnInfiniteLoop)
 			odize.AssertTrue(t, errors.Is(err, ErrInfiniteLoop))
 
-		}, odize.Only()).
+		}).
 		Test("should handle branches where one leads to a dead end/cycle and another leads to the ancestor", func(t *testing.T) {
 
 			nodeA := &NodeMap{Node: Node{Name: "NodeA"}}

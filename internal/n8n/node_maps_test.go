@@ -111,12 +111,12 @@ func TestNodeMap_FindAncestor(t *testing.T) {
 			_, err := node3.FindAncestor("NonExistent", seen)
 			odize.AssertTrue(t, errors.Is(err, ErrNodeNotFound))
 		}).
-		Test("should handle circular dependencies", func(t *testing.T) {
+		Test("with infinite loop detection, should return error", func(t *testing.T) {
 
 			node1.Parent = []*NodeMap{node3}
 
 			seen := make(map[string]struct{})
-			_, err := node1.FindAncestor("NonExistent", seen)
+			_, err := node1.FindAncestor("NonExistent", seen, NodeMapOptErrOnInfiniteLoop)
 			odize.AssertTrue(t, errors.Is(err, ErrInfiniteLoop))
 
 		}, odize.Only()).

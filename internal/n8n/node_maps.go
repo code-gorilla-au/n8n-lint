@@ -21,7 +21,8 @@ func (n *NodeMap) FindChild(name string) (*NodeMap, error) {
 	return nil, fmt.Errorf("%s: %w", name, ErrNodeNotFound)
 }
 
-func (n *NodeMap) FindAncestor(ancestor string, seen map[string]struct{}) (*NodeMap, error) {
+func (n *NodeMap) FindAncestor(ancestor string, seen map[string]struct{}, opts ...NodeMapFuncOpts) (*NodeMap, error) {
+	config := WithNodeMapOptions(opts...)
 
 	if n.Parent == nil {
 		return nil, fmt.Errorf("parent '%s' not found for '%s': %w", ancestor, n.Node.Name, ErrNodeNotFound)
@@ -36,10 +37,14 @@ func (n *NodeMap) FindAncestor(ancestor string, seen map[string]struct{}) (*Node
 		}
 
 		if _, ok := seen[parent.Node.Name]; ok {
-			return parent, fmt.Errorf("%s: %w", parent.Node.Name, ErrInfiniteLoop)
+			if config.ErrOnInfiniteLoop {
+				return nil, fmt.Errorf("%s: %w", parent.Node.Name, ErrInfiniteLoop)
+			}
+
+			continue
 		}
 
-		pp, err := parent.FindAncestor(ancestor, seen)
+		pp, err := parent.FindAncestor(ancestor, seen, opts...)
 		if err != nil {
 			return pp, err
 		}
@@ -51,4 +56,24 @@ func (n *NodeMap) FindAncestor(ancestor string, seen map[string]struct{}) (*Node
 	}
 
 	return nil, fmt.Errorf("%s: %w", ancestor, ErrNodeNotFound)
+}
+
+type NodeMapOptions struct {
+	ErrOnInfiniteLoop bool
+}
+
+type NodeMapFuncOpts func(*NodeMapOptions)
+
+func WithNodeMapOptions(opts ...NodeMapFuncOpts) *NodeMapOptions {
+	var options NodeMapOptions
+
+	for _, opt := range opts {
+		opt(&options)
+	}
+
+	return &options
+}
+
+func NodeMapOptErrOnInfiniteLoop(options *NodeMapOptions) {
+	options.ErrOnInfiniteLoop = true
 }

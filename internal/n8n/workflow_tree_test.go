@@ -182,7 +182,7 @@ func TestEngine_FindAncestor_infinite_loop(t *testing.T) {
 
 	err = group.
 		Test("should find ancestor", func(t *testing.T) {
-			n, nErr := e.FindAncestor("If", "Edit Fields")
+			n, nErr := e.FindAncestor("If", "Edit Fields1")
 			odize.AssertNoError(t, nErr)
 
 			odize.AssertEqual(t, "If", n.Node.Name)

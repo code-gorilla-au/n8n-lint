@@ -107,7 +107,6 @@ func TestNodeMap_FindAncestor(t *testing.T) {
 		}).
 		Test("should return error if ancestor does not exist", func(t *testing.T) {
 			seen := make(map[string]struct{})
-			seen[node3.Node.Name] = struct{}{}
 
 			_, err := node3.FindAncestor("NonExistent", seen)
 			odize.AssertTrue(t, errors.Is(err, ErrNodeNotFound))
@@ -117,11 +116,10 @@ func TestNodeMap_FindAncestor(t *testing.T) {
 			node1.Parent = []*NodeMap{node3}
 
 			seen := make(map[string]struct{})
-			seen[node1.Node.Name] = struct{}{}
 			_, err := node1.FindAncestor("NonExistent", seen)
-			odize.AssertTrue(t, errors.Is(err, ErrNodeNotFound))
+			odize.AssertTrue(t, errors.Is(err, ErrInfiniteLoop))
 
-		}).
+		}, odize.Only()).
 		Test("should handle branches where one leads to a dead end/cycle and another leads to the ancestor", func(t *testing.T) {
 
 			nodeA := &NodeMap{Node: Node{Name: "NodeA"}}

@@ -167,3 +167,41 @@ func TestEngine_FindAncestor(t *testing.T) {
 		Run()
 	odize.AssertNoError(t, err)
 }
+
+func TestEngine_FindAncestor_infinite_loop(t *testing.T) {
+	group := odize.NewGroup(t, nil)
+
+	cwd, err := os.Getwd()
+	odize.AssertNoError(t, err)
+	workflowFile := filepath.Join(cwd, "test-data", "infinite_loop.json")
+
+	workflow, err := LoadWorkflowFromFile(workflowFile)
+	odize.AssertNoError(t, err)
+
+	e := NewWorkflowTree(workflow)
+
+	err = group.
+		Test("should find ancestor", func(t *testing.T) {
+			n, nErr := e.FindAncestor("If", "Edit Fields")
+			odize.AssertNoError(t, nErr)
+
+			odize.AssertEqual(t, "If", n.Node.Name)
+
+		}).
+		Test("should find should find ancestor within infinite loop", func(t *testing.T) {
+			n, nErr := e.FindAncestor("Edit Fields1", "Edit Fields")
+			odize.AssertNoError(t, nErr)
+
+			odize.AssertEqual(t, "Edit Fields1", n.Node.Name)
+
+		}).
+		Test("should find should find ancestor which is a reference to itself", func(t *testing.T) {
+			n, nErr := e.FindAncestor("Edit Fields1", "Edit Fields1")
+			odize.AssertNoError(t, nErr)
+
+			odize.AssertEqual(t, "Edit Fields1", n.Node.Name)
+
+		}).
+		Run()
+	odize.AssertNoError(t, err)
+}

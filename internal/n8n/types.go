@@ -57,3 +57,4 @@ type Workflow struct {
 }
 
 var ErrNodeNotFound = errors.New("node not found")
+var ErrInfiniteLoop = errors.New("infinite loop detected")

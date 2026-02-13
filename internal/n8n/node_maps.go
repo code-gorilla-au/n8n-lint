@@ -1,6 +1,9 @@
 package n8n
 
-import "fmt"
+import (
+	"fmt"
+	"log"
+)
 
 // FindChild searches the children of the current NodeMap for a node with the specified name and returns it if found.
 // Returns an error if no child with the given name exists.
@@ -25,19 +28,31 @@ func (n *NodeMap) FindAncestor(ancestor string, seen map[string]struct{}) (*Node
 		return nil, fmt.Errorf("parent '%s' not found for '%s': %w", ancestor, n.Node.Name, ErrNodeNotFound)
 	}
 
+	log.Println("child", n.Node.Name)
+
 	for _, parent := range n.Parent {
-		if _, ok := seen[parent.Node.Name]; ok {
-			continue
-		}
+		log.Println("parent", parent.Node.Name)
 
 		if parent.Node.Name == ancestor {
 			return parent, nil
 		}
 
+		if _, ok := seen[parent.Node.Name]; ok {
+			return parent, fmt.Errorf("%s: %w", parent.Node.Name, ErrInfiniteLoop)
+		}
+
+		seen[n.Node.Name] = struct{}{}
+		log.Println("seen", seen)
+
 		pp, err := parent.FindAncestor(ancestor, seen)
-		if err == nil {
+		if err != nil {
+			return pp, err
+		}
+
+		if pp != nil {
 			return pp, nil
 		}
+
 	}
 
 	return nil, fmt.Errorf("%s: %w", ancestor, ErrNodeNotFound)

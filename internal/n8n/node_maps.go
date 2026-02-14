@@ -27,7 +27,6 @@ func (n *NodeMap) findChild(name string, opts ...NodeMapFuncOpts) (*NodeMap, err
 // childDepthFirstSearch performs a depth-first search on the node graph to find a node with the specified name.
 // Prevents infinite loops by keeping track of visited nodes using the seen map and configurable options.
 func childDepthFirstSearch(search string, node *NodeMap, seen map[string]struct{}, opts NodeMapOptions) (*NodeMap, error) {
-	seen[node.Node.Name] = struct{}{}
 
 	for _, child := range node.Children {
 		if child.Node.Name == search {

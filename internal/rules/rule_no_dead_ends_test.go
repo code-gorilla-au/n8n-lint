@@ -1,7 +1,6 @@
 package rules
 
 import (
-	"log"
 	"os"
 	"path/filepath"
 	"testing"
@@ -129,8 +128,6 @@ func TestRule_dead_ends_valid_custom(t *testing.T) {
 				},
 			})
 			odize.AssertNoError(t, oErr)
-
-			log.Println(outcome.Nodes)
 
 			odize.AssertEqual(t, ReportOff, outcome.Report)
 			odize.AssertEqual(t, 0, len(outcome.Nodes))

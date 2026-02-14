@@ -67,6 +67,7 @@ func (w *WorkflowTree) FindAncestor(ancestor, child string, opts ...NodeMapFuncO
 	}
 
 	seen := make(map[string]struct{})
+	defer func() { seen = make(map[string]struct{}) }()
 
 	a, err := c.FindAncestor(ancestor, seen, opts...)
 	if err != nil {

@@ -196,7 +196,7 @@ func TestEngine_FindAncestor_infinite_loop(t *testing.T) {
 
 		}).
 		Test("should return error if infinite loop detected", func(t *testing.T) {
-			_, nErr := e.FindAncestor("When clicking ‘Execute workflow’", "checking", NodeMapOptErrOnInfiniteLoop)
+			_, nErr := e.FindAncestor("Edit Fields1", "Edit Fields1", NodeMapOptErrOnInfiniteLoop)
 			odize.AssertTrue(t, errors.Is(nErr, ErrInfiniteLoop))
 		}).
 		Run()

@@ -4,9 +4,9 @@ import (
 	"fmt"
 )
 
-// FindChild searches the children of the current NodeMap for a node with the specified name and returns it if found.
+// findChild searches the children of the current NodeMap for a node with the specified name and returns it if found.
 // Returns an error if no child with the given name exists.
-func (n *NodeMap) FindChild(name string, opts ...NodeMapFuncOpts) (*NodeMap, error) {
+func (n *NodeMap) findChild(name string, opts ...NodeMapFuncOpts) (*NodeMap, error) {
 	config := WithNodeMapOptions(opts...)
 
 	seen := make(map[string]struct{})
@@ -55,12 +55,12 @@ func childDepthFirstSearch(search string, node *NodeMap, seen map[string]struct{
 	return nil, nil
 }
 
-// FindAncestor traverses parent nodes to locate a specified ancestor.
+// findAncestor traverses parent nodes to locate a specified ancestor.
 // Activley avoids infinite loops by tracking visited nodes in the seen map.
 //
 // If ErrOnInfiniteLoop is set to true, an error will be returned if an infinite loop is detected.
 // Otherwise, the first ancestor found will be returned.
-func (n *NodeMap) FindAncestor(ancestor string, opts ...NodeMapFuncOpts) (*NodeMap, error) {
+func (n *NodeMap) findAncestor(ancestor string, opts ...NodeMapFuncOpts) (*NodeMap, error) {
 	config := WithNodeMapOptions(opts...)
 
 	seen := make(map[string]struct{})

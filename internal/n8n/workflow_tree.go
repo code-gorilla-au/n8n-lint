@@ -66,7 +66,7 @@ func (w *WorkflowTree) FindAncestor(ancestor, child string, opts ...NodeMapFuncO
 		return nil, fmt.Errorf("%s: %w", child, ErrNodeNotFound)
 	}
 
-	a, err := c.FindAncestor(ancestor, opts...)
+	a, err := c.findAncestor(ancestor, opts...)
 	if err != nil {
 		return nil, err
 	}

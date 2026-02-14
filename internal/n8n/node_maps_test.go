@@ -53,35 +53,35 @@ func TestNodeMap_FindChild(t *testing.T) {
 	err := group.
 		Test("should find a direct child", func(t *testing.T) {
 
-			child, err := node.FindChild("If2")
+			child, err := node.findChild("If2")
 			odize.AssertNoError(t, err)
 			odize.AssertEqual(t, "If2", child.Node.Name)
 		}).
 		Test("should find a deep child", func(t *testing.T) {
 
-			child, err := node.FindChild("DONE")
+			child, err := node.findChild("DONE")
 			odize.AssertNoError(t, err)
 			odize.AssertEqual(t, "DONE", child.Node.Name)
 		}).
 		Test("should return error if child does not exist", func(t *testing.T) {
 
-			_, err := node.FindChild("NonExistentNode")
+			_, err := node.findChild("NonExistentNode")
 			odize.AssertTrue(t, errors.Is(err, ErrNodeNotFound))
 		}).
 		Test("should return reference to self", func(t *testing.T) {
 
-			child, err := node.FindChild("IF")
+			child, err := node.findChild("IF")
 			odize.AssertNoError(t, err)
 			odize.AssertEqual(t, "IF", child.Node.Name)
 		}).
 		Test("should return error if infinite loop detected", func(t *testing.T) {
 
-			_, err := node.FindChild("NOOP", NodeMapOptErrOnInfiniteLoop)
+			_, err := node.findChild("NOOP", NodeMapOptErrOnInfiniteLoop)
 			odize.AssertTrue(t, errors.Is(err, ErrInfiniteLoop))
 		}).
 		Test("should find node outside of infinite loop", func(t *testing.T) {
 
-			child, err := node.FindChild("NOOP")
+			child, err := node.findChild("NOOP")
 			odize.AssertNoError(t, err)
 			odize.AssertEqual(t, "NOOP", child.Node.Name)
 		}).
@@ -108,26 +108,26 @@ func TestNodeMap_FindAncestor(t *testing.T) {
 	err := group.
 		Test("should find a direct parent", func(t *testing.T) {
 
-			ancestor, err := node2.FindAncestor("Node1")
+			ancestor, err := node2.findAncestor("Node1")
 			odize.AssertNoError(t, err)
 			odize.AssertEqual(t, "Node1", ancestor.Node.Name)
 		}).
 		Test("should find a deep ancestor", func(t *testing.T) {
 
-			ancestor, err := node3.FindAncestor("Node1")
+			ancestor, err := node3.findAncestor("Node1")
 			odize.AssertNoError(t, err)
 			odize.AssertEqual(t, "Node1", ancestor.Node.Name)
 		}).
 		Test("should return error if ancestor does not exist", func(t *testing.T) {
 
-			_, err := node3.FindAncestor("NonExistent")
+			_, err := node3.findAncestor("NonExistent")
 			odize.AssertTrue(t, errors.Is(err, ErrNodeNotFound))
 		}).
 		Test("with infinite loop detection, should return error", func(t *testing.T) {
 
 			node1.Parent = []*NodeMap{node3}
 
-			_, err := node1.FindAncestor("NonExistent", NodeMapOptErrOnInfiniteLoop)
+			_, err := node1.findAncestor("NonExistent", NodeMapOptErrOnInfiniteLoop)
 			odize.AssertTrue(t, errors.Is(err, ErrInfiniteLoop))
 
 		}).
@@ -142,7 +142,7 @@ func TestNodeMap_FindAncestor(t *testing.T) {
 			nodeB.Parent = []*NodeMap{ancestorNode}
 			nodeC.Parent = []*NodeMap{nodeA}
 
-			found, err := nodeA.FindAncestor("Ancestor")
+			found, err := nodeA.findAncestor("Ancestor")
 			odize.AssertNoError(t, err)
 			odize.AssertEqual(t, "Ancestor", found.Node.Name)
 		}).

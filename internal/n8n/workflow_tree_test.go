@@ -188,19 +188,16 @@ func TestEngine_FindAncestor_infinite_loop(t *testing.T) {
 			odize.AssertEqual(t, "If", n.Node.Name)
 
 		}).
-		Test("should find should find ancestor within infinite loop", func(t *testing.T) {
-			n, nErr := e.FindAncestor("Edit Fields1", "Edit Fields")
+		Test("should avoid infinite loop when traversing", func(t *testing.T) {
+			n, nErr := e.FindAncestor("Edit Fields1", "checking")
 			odize.AssertNoError(t, nErr)
 
 			odize.AssertEqual(t, "Edit Fields1", n.Node.Name)
 
 		}).
-		Test("should find should find ancestor which is a reference to itself", func(t *testing.T) {
-			n, nErr := e.FindAncestor("Edit Fields1", "Edit Fields1")
-			odize.AssertNoError(t, nErr)
-
-			odize.AssertEqual(t, "Edit Fields1", n.Node.Name)
-
+		Test("should return error if infinite loop detected", func(t *testing.T) {
+			_, nErr := e.FindAncestor("When clicking ‘Execute workflow’", "checking", NodeMapOptErrOnInfiniteLoop)
+			odize.AssertTrue(t, errors.Is(nErr, ErrInfiniteLoop))
 		}).
 		Run()
 	odize.AssertNoError(t, err)

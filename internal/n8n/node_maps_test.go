@@ -37,6 +37,12 @@ func TestNodeMap_FindChild(t *testing.T) {
 							{
 								Node: node1,
 							},
+							{
+								Node: Node{
+									ID:   "4",
+									Name: "NOOP",
+								},
+							},
 						},
 					},
 				},
@@ -67,6 +73,12 @@ func TestNodeMap_FindChild(t *testing.T) {
 			child, err := node.FindChild("IF")
 			odize.AssertNoError(t, err)
 			odize.AssertEqual(t, "IF", child.Node.Name)
+		}).
+		Test("should find node outside of infinite loop", func(t *testing.T) {
+
+			child, err := node.FindChild("NOOP")
+			odize.AssertNoError(t, err)
+			odize.AssertEqual(t, "NOOP", child.Node.Name)
 		}).
 		Run()
 	odize.AssertNoError(t, err)

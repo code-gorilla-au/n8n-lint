@@ -21,6 +21,11 @@ func (n *NodeMap) FindChild(name string) (*NodeMap, error) {
 	return nil, fmt.Errorf("%s: %w", name, ErrNodeNotFound)
 }
 
+// FindAncestor traverses parent nodes to locate a specified ancestor.
+// Activley avoids infinite loops by tracking visited nodes in the seen map.
+//
+// If ErrOnInfiniteLoop is set to true, an error will be returned if an infinite loop is detected.
+// Otherwise, the first ancestor found will be returned.
 func (n *NodeMap) FindAncestor(ancestor string, seen map[string]struct{}, opts ...NodeMapFuncOpts) (*NodeMap, error) {
 	config := WithNodeMapOptions(opts...)
 
@@ -46,6 +51,7 @@ func (n *NodeMap) FindAncestor(ancestor string, seen map[string]struct{}, opts .
 
 		pp, err := parent.FindAncestor(ancestor, seen, opts...)
 		if err != nil {
+
 			return pp, err
 		}
 
@@ -58,22 +64,30 @@ func (n *NodeMap) FindAncestor(ancestor string, seen map[string]struct{}, opts .
 	return nil, fmt.Errorf("%s: %w", ancestor, ErrNodeNotFound)
 }
 
+// NodeMapOptions defines configuration options for controlling node mapping behaviour in specific functions.
 type NodeMapOptions struct {
+
+	// ErrOnInfiniteLoop determines whether to raise an error if an infinite loop is detected during node mapping.
 	ErrOnInfiniteLoop bool
 }
 
-type NodeMapFuncOpts func(*NodeMapOptions)
+// NodeMapFuncOpts is a function type for configuring NodeMapOptions used in node traversal and mapping operations.
+type NodeMapFuncOpts func(*NodeMapOptions) NodeMapOptions
 
+// WithNodeMapOptions applies a series of NodeMapFuncOpts to configure and return a NodeMapOptions instance.
 func WithNodeMapOptions(opts ...NodeMapFuncOpts) NodeMapOptions {
 	var options NodeMapOptions
 
 	for _, opt := range opts {
-		opt(&options)
+		options = opt(&options)
 	}
 
 	return options
 }
 
-func NodeMapOptErrOnInfiniteLoop(options *NodeMapOptions) {
+// NodeMapOptErrOnInfiniteLoop enables the ErrOnInfiniteLoop option in NodeMapOptions to raise an error for infinite loops.
+func NodeMapOptErrOnInfiniteLoop(options *NodeMapOptions) NodeMapOptions {
 	options.ErrOnInfiniteLoop = true
+
+	return *options
 }

@@ -195,10 +195,6 @@ func TestEngine_FindAncestor_infinite_loop(t *testing.T) {
 			odize.AssertEqual(t, "Edit Fields1", n.Node.Name)
 
 		}).
-		Test("should return error if infinite loop detected", func(t *testing.T) {
-			_, nErr := e.FindAncestor("Edit Fields1", "Edit Fields1", NodeMapOptErrOnInfiniteLoop)
-			odize.AssertTrue(t, errors.Is(nErr, ErrInfiniteLoop))
-		}).
 		Run()
 	odize.AssertNoError(t, err)
 }

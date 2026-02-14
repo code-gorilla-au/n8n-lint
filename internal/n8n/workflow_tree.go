@@ -66,10 +66,7 @@ func (w *WorkflowTree) FindAncestor(ancestor, child string, opts ...NodeMapFuncO
 		return nil, fmt.Errorf("%s: %w", child, ErrNodeNotFound)
 	}
 
-	seen := make(map[string]struct{})
-	defer func() { seen = make(map[string]struct{}) }()
-
-	a, err := c.FindAncestor(ancestor, seen, opts...)
+	a, err := c.FindAncestor(ancestor, opts...)
 	if err != nil {
 		return nil, err
 	}

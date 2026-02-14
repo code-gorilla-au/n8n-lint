@@ -6,19 +6,53 @@ import (
 
 // FindChild searches the children of the current NodeMap for a node with the specified name and returns it if found.
 // Returns an error if no child with the given name exists.
-func (n *NodeMap) FindChild(name string) (*NodeMap, error) {
-	for _, child := range n.Children {
-		if child.Node.Name == name {
-			return child, nil
-		}
+func (n *NodeMap) FindChild(name string, opts ...NodeMapFuncOpts) (*NodeMap, error) {
+	config := WithNodeMapOptions(opts...)
 
-		nn, err := child.FindChild(name)
-		if err == nil {
-			return nn, nil
-		}
+	seen := make(map[string]struct{})
+	seen[n.Node.Name] = struct{}{}
+
+	nn, err := childDepthFirstSearch(name, n, seen, config)
+	if err != nil {
+		return nil, err
+	}
+
+	if nn != nil {
+		return nn, nil
 	}
 
 	return nil, fmt.Errorf("%s: %w", name, ErrNodeNotFound)
+}
+
+// childDepthFirstSearch performs a depth-first search on the node graph to find a node with the specified name.
+// Prevents infinite loops by keeping track of visited nodes using the seen map and configurable options.
+func childDepthFirstSearch(search string, node *NodeMap, seen map[string]struct{}, opts NodeMapOptions) (*NodeMap, error) {
+	seen[node.Node.Name] = struct{}{}
+
+	for _, child := range node.Children {
+		if child.Node.Name == search {
+			return child, nil
+		}
+
+		if _, ok := seen[child.Node.Name]; ok {
+			if opts.ErrOnInfiniteLoop {
+				return nil, fmt.Errorf("%s: %w", child.Node.Name, ErrInfiniteLoop)
+			}
+
+			continue
+		}
+
+		cc, err := childDepthFirstSearch(search, child, seen, opts)
+		if err != nil {
+			return nil, err
+		}
+
+		if cc != nil {
+			return cc, nil
+		}
+	}
+
+	return nil, nil
 }
 
 // FindAncestor traverses parent nodes to locate a specified ancestor.
@@ -26,42 +60,53 @@ func (n *NodeMap) FindChild(name string) (*NodeMap, error) {
 //
 // If ErrOnInfiniteLoop is set to true, an error will be returned if an infinite loop is detected.
 // Otherwise, the first ancestor found will be returned.
-func (n *NodeMap) FindAncestor(ancestor string, seen map[string]struct{}, opts ...NodeMapFuncOpts) (*NodeMap, error) {
+func (n *NodeMap) FindAncestor(ancestor string, opts ...NodeMapFuncOpts) (*NodeMap, error) {
 	config := WithNodeMapOptions(opts...)
 
-	if n.Parent == nil {
-		return nil, fmt.Errorf("parent '%s' not found for '%s': %w", ancestor, n.Node.Name, ErrNodeNotFound)
-	}
-
+	seen := make(map[string]struct{})
 	seen[n.Node.Name] = struct{}{}
 
-	for _, parent := range n.Parent {
+	aa, err := ancestorDepthFirstSearch(ancestor, n, seen, config)
+	if err != nil {
+		return nil, err
+	}
 
+	if aa != nil {
+		return aa, nil
+	}
+
+	return nil, fmt.Errorf("%s: %w", ancestor, ErrNodeNotFound)
+}
+
+// ancestorDepthFirstSearch performs a depth-first search to locate a specified ancestor node within a hierarchical structure.
+// It tracks visited nodes to prevent infinite loops and can return an error if infinite loops are detected, based on options.
+func ancestorDepthFirstSearch(ancestor string, node *NodeMap, seen map[string]struct{}, opts NodeMapOptions) (*NodeMap, error) {
+	seen[node.Node.Name] = struct{}{}
+
+	for _, parent := range node.Parent {
 		if parent.Node.Name == ancestor {
 			return parent, nil
 		}
 
 		if _, ok := seen[parent.Node.Name]; ok {
-			if config.ErrOnInfiniteLoop {
+			if opts.ErrOnInfiniteLoop {
 				return nil, fmt.Errorf("%s: %w", parent.Node.Name, ErrInfiniteLoop)
 			}
 
 			continue
 		}
 
-		pp, err := parent.FindAncestor(ancestor, seen, opts...)
+		pp, err := ancestorDepthFirstSearch(ancestor, parent, seen, opts)
 		if err != nil {
-
-			return pp, err
+			return nil, err
 		}
 
 		if pp != nil {
 			return pp, nil
 		}
-
 	}
 
-	return nil, fmt.Errorf("%s: %w", ancestor, ErrNodeNotFound)
+	return nil, nil
 }
 
 // NodeMapOptions defines configuration options for controlling node mapping behaviour in specific functions.

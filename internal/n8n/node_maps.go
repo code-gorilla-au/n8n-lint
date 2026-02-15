@@ -1,6 +1,7 @@
 package n8n
 
 import (
+	"encoding/json"
 	"fmt"
 )
 
@@ -106,6 +107,32 @@ func ancestorDepthFirstSearch(ancestor string, node *NodeMap, seen map[string]st
 	}
 
 	return nil, nil
+}
+
+func (n *NodeMap) MarshalJSON() ([]byte, error) {
+	printable := map[string]json.RawMessage{}
+
+	nodeData, err := json.Marshal(n.Node)
+	if err != nil {
+		return nil, err
+	}
+
+	printable["node"] = nodeData
+
+	var children []Node
+
+	for _, child := range n.Children {
+		children = append(children, child.Node)
+	}
+
+	childData, err := json.Marshal(children)
+	if err != nil {
+		return nil, err
+	}
+
+	printable["children"] = childData
+
+	return json.Marshal(printable)
 }
 
 // NodeMapOptions defines configuration options for controlling node mapping behaviour in specific functions.

@@ -13,7 +13,7 @@ type WorkflowTree struct {
 type NodeMap struct {
 	Node     Node       `json:"node"`
 	Parent   []*NodeMap `json:"-"`
-	Children []*NodeMap `json:"children,omitempty"`
+	Children []*NodeMap `json:"children"`
 }
 
 type Node struct {

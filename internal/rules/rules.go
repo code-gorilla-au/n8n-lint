@@ -1,6 +1,8 @@
 package rules
 
-import "github.com/code-gorilla-au/n8n-lint/internal/n8n"
+import (
+	"github.com/code-gorilla-au/n8n-lint/internal/n8n"
+)
 
 func NewRulesEngine(config Configuration) Engine {
 	return Engine{

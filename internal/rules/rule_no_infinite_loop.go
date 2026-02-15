@@ -6,7 +6,7 @@ import (
 
 const (
 	ruleNameNoInfiniteLoop        = "NO_INFINITE_LOOP"
-	ruleDescriptionNoInfiniteLoop = "TODO"
+	ruleDescriptionNoInfiniteLoop = "Detects nodes that form an infinite loop without proper handling. Infinite loops can lead to system instability and resource exhaustion."
 )
 
 var ruleNoInfiniteLoop = Rule{

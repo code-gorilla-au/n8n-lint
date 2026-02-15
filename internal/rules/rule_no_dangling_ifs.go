@@ -33,6 +33,8 @@ var ruleNoDanglingIfs = Rule{
 
 		}
 
+		outcome.Report = evaluateReportLevel(config.NoDanglingIfs, outcome)
+
 		return outcome, nil
 	},
 }

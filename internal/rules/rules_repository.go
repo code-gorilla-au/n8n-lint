@@ -5,5 +5,6 @@ func getRuleRepository() []Rule {
 	return []Rule{
 		ruleNoDeadEnds,
 		ruleNoInfiniteLoop,
+		ruleNoDanglingIfs,
 	}
 }

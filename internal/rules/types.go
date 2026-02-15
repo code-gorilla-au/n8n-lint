@@ -106,6 +106,10 @@ type BaseRuleConfig struct {
 
 // ReportLevel returns the reporting severity level of the configuration.
 func (c BaseRuleConfig) ReportLevel() ReportLevel {
+	if c.Report == "" {
+		return ReportError
+	}
+
 	return c.Report
 }
 
@@ -121,11 +125,6 @@ type NoDeadEndsConfig struct {
 
 // NoInfiniteLoopConfig defines the configuration for detecting and handling no_infinite_loop.
 type NoInfiniteLoopConfig struct {
-	BaseRuleConfig
-}
-
-// NewGeneratednameConfig defines the configuration for detecting and handling new_generatedname.
-type NewGeneratednameConfig struct {
 	BaseRuleConfig
 }
 

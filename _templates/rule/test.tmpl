@@ -4,6 +4,8 @@ to: internal/rules/rule_{{ .Name | caseSnake }}_test.go
 package rules
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/code-gorilla-au/odize"
@@ -12,9 +14,24 @@ import (
 func TestRule_{{ .Name | caseSnake }}(t *testing.T) {
     group := odize.NewGroup(t, nil)
 
-    err := group.
+    cwd, err := os.Getwd()
+    odize.AssertNoError(t, err)
+    workflowFile := filepath.Join(cwd, "test-data", "no_dangling_ifs.json")
+
+    workflow, err := n8n.LoadWorkflowFromFile(workflowFile)
+    odize.AssertNoError(t, err)
+
+    err = group.
         Test("should do something", func(t *testing.T) {
-            // TODO
+			outcome, oErr := rule{{ .Name | casePascal }}.Run(&finder, Ruleset{
+				{{ .Name | casePascal }}: {{ .Name | casePascal }}Config{
+					BaseRuleConfig: BaseRuleConfig{
+						Name:   ruleName{{ .Name | casePascal }},
+						Report: ReportError,
+					},
+				},
+			})
+			odize.AssertNoError(t, oErr)
         }).
         Run()
     odize.AssertNoError(t, err)

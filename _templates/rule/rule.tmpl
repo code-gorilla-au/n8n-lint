@@ -23,7 +23,6 @@ var rule{{ .Name | casePascal }} = Rule{
 			Report:          config.{{ .Name | casePascal }}.ReportLevel(),
 		}
 
-		return outcome, nil
         return EvaluationOutcome{}, nil
     },
 }

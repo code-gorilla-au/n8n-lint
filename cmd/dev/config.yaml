@@ -4,6 +4,7 @@ rules:
     allowed_names:
       - CUSTOM_STOP
 
+
 ignore:
   - "node_modules/**"
 

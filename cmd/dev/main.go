@@ -26,12 +26,21 @@ func main() {
 	log.SetPrefix(chalk.Cyan("n8n-lint "))
 	log.SetFlags(log.Ldate | log.Ltime | log.Lmsgprefix)
 
-	e := rules.NewRulesEngine(config)
-	report, err := e.Run(workflow)
+	orchestrator := rules.NewOrchestrator(config)
+
+	orchestrator.Start()
+
+	orchestrator.Load([]n8n.Workflow{workflow})
+
+	orchestrator.Wait()
+
+	reports, err := orchestrator.Results()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	report.Print()
+	for _, report := range reports {
+		report.Print()
+	}
 
 }

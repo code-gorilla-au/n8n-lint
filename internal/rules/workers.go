@@ -59,13 +59,13 @@ func (o *Orchestrator) Load(jobs []n8n.Workflow) {
 		o.Jobs <- job
 	}
 
+	close(o.Jobs)
 }
 
 func (o *Orchestrator) Wait() {
 	o.WG.Wait()
-	//close(o.ResultChan)
-	//close(o.ErrChan)
-	//close(o.Jobs)
+	close(o.ResultChan)
+	close(o.ErrChan)
 }
 
 func (o *Orchestrator) Results() ([]FileReport, error) {
@@ -93,7 +93,6 @@ type Worker struct {
 }
 
 func (w *Worker) Run() {
-	w.WG.Add(1)
 	defer w.WG.Done()
 
 	for job := range w.JobChan {

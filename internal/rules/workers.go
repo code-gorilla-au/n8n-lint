@@ -9,7 +9,7 @@ import (
 
 const numWorkers = 4
 
-type Orchestrator struct {
+type WorkerOrchestrator struct {
 	NumberWorkers int
 	ErrChan       chan error
 	ResultChan    chan FileReport
@@ -18,7 +18,8 @@ type Orchestrator struct {
 	WG            *sync.WaitGroup
 }
 
-func NewOrchestrator(config Configuration) *Orchestrator {
+// NewOrchestrator initializes and returns a new WorkerOrchestrator instance configured with the given Configuration.
+func NewOrchestrator(config Configuration) *WorkerOrchestrator {
 	workers := make([]Worker, numWorkers)
 	errChan := make(chan error, numWorkers)
 	resultsChan := make(chan FileReport, numWorkers)
@@ -37,7 +38,7 @@ func NewOrchestrator(config Configuration) *Orchestrator {
 		}
 	}
 
-	return &Orchestrator{
+	return &WorkerOrchestrator{
 		NumberWorkers: numWorkers,
 		ErrChan:       errChan,
 		ResultChan:    resultsChan,
@@ -47,14 +48,16 @@ func NewOrchestrator(config Configuration) *Orchestrator {
 	}
 }
 
-func (o *Orchestrator) Start() {
+// Start launches all workers in the orchestrator and increments the WaitGroup counter for each worker.
+func (o *WorkerOrchestrator) Start() {
 	for _, w := range o.Workers {
 		o.WG.Add(1)
 		go w.Run()
 	}
 }
 
-func (o *Orchestrator) Load(jobs []n8n.Workflow) {
+// Load inserts a list of workflows into the orchestrator's job queue and closes the queue once all workflows are added.
+func (o *WorkerOrchestrator) Load(jobs []n8n.Workflow) {
 	for _, job := range jobs {
 		o.Jobs <- job
 	}
@@ -62,13 +65,15 @@ func (o *Orchestrator) Load(jobs []n8n.Workflow) {
 	close(o.Jobs)
 }
 
-func (o *Orchestrator) Wait() {
+// Wait blocks until all workers have finished processing, then closes the result and error channels.
+func (o *WorkerOrchestrator) Wait() {
 	o.WG.Wait()
 	close(o.ResultChan)
 	close(o.ErrChan)
 }
 
-func (o *Orchestrator) Results() ([]FileReport, error) {
+// Results collects all FileReport objects from the ResultChan, aggregates errors from the ErrChan, and returns them.
+func (o *WorkerOrchestrator) Results() ([]FileReport, error) {
 	results := make([]FileReport, 0)
 	for report := range o.ResultChan {
 		results = append(results, report)

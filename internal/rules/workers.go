@@ -88,6 +88,7 @@ func (o *WorkerOrchestrator) Results() ([]FileReport, error) {
 	return results, errors.Join(errList...)
 }
 
+// Worker represents a unit responsible for processing workflows, reporting errors, and generating file evaluation results.
 type Worker struct {
 	ID         int
 	ErrChan    chan error
@@ -97,6 +98,7 @@ type Worker struct {
 	engine     Engine
 }
 
+// Run processes jobs from the JobChan, executes them using the engine, and sends results or errors to respective channels.
 func (w *Worker) Run() {
 	defer w.WG.Done()
 

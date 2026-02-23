@@ -29,3 +29,37 @@ func LoadWorkflowFromFile(path string) (Workflow, error) {
 
 	return workflow, nil
 }
+
+// LoadWorkflowsFromDir recursively walks a directory and loads all JSON-encoded workflows from files.
+func LoadWorkflowsFromDir(dirPath string) ([]Workflow, error) {
+	var workflows []Workflow
+
+	err := filepath.WalkDir(dirPath, func(path string, d os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if d.IsDir() {
+			return nil
+		}
+
+		if filepath.Ext(path) != ".json" {
+			return nil
+		}
+
+		workflow, err := LoadWorkflowFromFile(path)
+		if err != nil {
+			log.Println(chalk.Red("Error loading workflow file:"), err)
+			return err
+		}
+
+		workflows = append(workflows, workflow)
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return workflows, nil
+}

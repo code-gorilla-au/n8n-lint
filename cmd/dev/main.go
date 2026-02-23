@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"path/filepath"
 
@@ -11,14 +12,14 @@ import (
 
 func main() {
 	configFile := filepath.Clean("cmd/dev/config.yaml")
-	file := filepath.Clean("internal/rules/test-data/infinite_loop.json")
+	file := filepath.Clean("internal/rules/test-data")
 
 	config, err := rules.LoadConfigFromFile(configFile)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	workflow, wErr := n8n.LoadWorkflowFromFile(file)
+	workflows, wErr := n8n.LoadWorkflowsFromDir(file)
 	if wErr != nil {
 		log.Fatal(wErr)
 	}
@@ -26,11 +27,12 @@ func main() {
 	log.SetPrefix(chalk.Cyan("n8n-lint "))
 	log.SetFlags(log.Ldate | log.Ltime | log.Lmsgprefix)
 
-	orchestrator := rules.NewOrchestrator(config)
+	fmt.Print("total loaded", len(workflows))
 
+	orchestrator := rules.NewOrchestrator(config)
 	orchestrator.Start()
 
-	orchestrator.Load([]n8n.Workflow{workflow})
+	orchestrator.Load(workflows)
 
 	orchestrator.Wait()
 

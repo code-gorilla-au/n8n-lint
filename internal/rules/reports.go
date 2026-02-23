@@ -31,6 +31,7 @@ func (f FileReport) GenerateReport(outcomes []EvaluationOutcome) FileReport {
 
 	f.TotalErrors = len(totalErrors)
 	f.TotalWarns = len(totalWarns)
+	f.FileName = outcomes[0].File
 
 	return f
 
@@ -69,7 +70,10 @@ func printReports(outcomes []EvaluationOutcome) {
 
 // printReportSummary outputs a colored summary of the total errors and warnings contained in the provided FileReport.
 func printReportSummary(report FileReport) {
+	log.Println("")
+	log.Printf("%s: %s\n", chalk.Blue("File"), report.FileName)
 	log.Printf("%s: %d  |  %s: %d\n", chalk.Red("Errors"), report.TotalErrors, chalk.Yellow("Warnings"), report.TotalWarns)
+	log.Println("")
 }
 
 // printReport outputs a formatted report for the given EvaluationOutcome, including rule details and associated nodes.

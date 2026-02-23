@@ -6,7 +6,7 @@ import (
 
 const (
 	ruleNameNoDanglingIfs        = "NO_DANGLING_IFS"
-	ruleDescriptionNoDanglingIfs = "TODO"
+	ruleDescriptionNoDanglingIfs = "If statements without both true and false branches are considered dangling. Dangling nodes can lead to confusion and unhandled errors / scenarios."
 )
 
 var ruleNoDanglingIfs = Rule{

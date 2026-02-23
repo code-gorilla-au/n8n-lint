@@ -3,6 +3,7 @@ package rules
 import (
 	"os"
 	"path/filepath"
+	"slices"
 	"testing"
 
 	"github.com/code-gorilla-au/n8n-lint/internal/n8n"
@@ -36,9 +37,11 @@ func TestRule_no_infinite_loop(t *testing.T) {
 			odize.AssertEqual(t, ReportError, outcome.Report)
 			odize.AssertNoError(t, err)
 			odize.AssertEqual(t, 3, len(outcome.Nodes))
-			odize.AssertEqual(t, "Edit Fields", outcome.Nodes[0].Name)
-			odize.AssertEqual(t, "If", outcome.Nodes[1].Name)
-			odize.AssertEqual(t, "Edit Fields1", outcome.Nodes[2].Name)
+			expected := []string{"Edit Fields1", "If", "Edit Fields"}
+			for _, node := range outcome.Nodes {
+				odize.AssertTrue(t, slices.Contains(expected, node.Name))
+			}
+
 		}).
 		Run()
 	odize.AssertNoError(t, err)

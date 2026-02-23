@@ -27,6 +27,7 @@ const (
 
 // FileReport represents a summary report containing evaluation outcomes and counts of errors and warnings.
 type FileReport struct {
+	FileName string `json:"file_name"`
 
 	// Outcomes represent a list of evaluation results, each detailing the outcome of a specific rule applied to a file.
 	Outcomes []EvaluationOutcome `json:"outcomes"`

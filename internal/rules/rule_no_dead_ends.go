@@ -9,7 +9,7 @@ import (
 
 const (
 	ruleNameNoDeadEnds        = "NO_DEAD_ENDS"
-	ruleDescriptionNoDeadEnds = "Find nodes with no incoming or outgoing connections. Indicating incomplete, untested, or unused nodes. Unused nodes causes confusion to the reviewers, cause drift in requirements and hide information."
+	ruleDescriptionNoDeadEnds = "Find nodes with no incoming and or outgoing connections. Indicating incomplete, untested, or unused nodes. Unused nodes causes confusion to the reviewers, cause drift in requirements and hide information."
 )
 
 var ruleNoDeadEnds = Rule{

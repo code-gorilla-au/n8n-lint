@@ -21,7 +21,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	workflows, wErr := n8n.LoadWorkflowsFromDir(jsonDir)
+	workflows, wErr := n8n.LoadWorkflowsFromDir(jsonDir, config.Include, config.Ignore)
 	if wErr != nil {
 		log.Fatal(wErr)
 	}

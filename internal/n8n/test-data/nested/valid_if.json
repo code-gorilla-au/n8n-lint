@@ -1,0 +1,149 @@
+{
+  "name": "My workflow 3",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "3bf6f991-73db-46ea-ae49-8520e848a333",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ed36e4dc-b95e-4fb8-9b98-0c71b463f416",
+              "name": "foo",
+              "value": "bar",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        0
+      ],
+      "id": "fd57788e-de87-438d-ae01-312c8cffc819",
+      "name": "set foo"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "582048fe-22bc-463f-b503-c5accc5bb4b8",
+              "leftValue": "={{ $json.foo }}",
+              "rightValue": "bar",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        448,
+        0
+      ],
+      "id": "282a85e3-0299-48bc-ae21-27c9171ea0fb",
+      "name": "If"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        768,
+        -80
+      ],
+      "id": "2f807ddd-0bf1-4338-b560-b571354b2fe3",
+      "name": "true branch"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        768,
+        64
+      ],
+      "id": "27171b8b-015b-437e-a092-380cb5a6e4b3",
+      "name": "false branch"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "set foo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set foo": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "true branch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "false branch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "9c1befd0-88f8-4989-a4e2-9ac0bfbc77cd",
+  "meta": {
+    "instanceId": "757dc90212a91dc1c87095a6b6ec75eb430ba39b69f22ad5db4a24f9637fa66e"
+  },
+  "id": "MMSkXvRCI6lLb8nN",
+  "tags": []
+}

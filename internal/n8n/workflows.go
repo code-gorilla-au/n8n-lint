@@ -11,6 +11,8 @@ import (
 
 // LoadWorkflowFromFile reads a JSON-encoded workflow from a file, unmarshals it, and returns the Workflow object.
 func LoadWorkflowFromFile(path string) (Workflow, error) {
+	log.Println("Loading file:", path)
+
 	data, err := os.ReadFile(filepath.Clean(path))
 	if err != nil {
 		log.Println(chalk.Red("Error reading workflow file:"), err)

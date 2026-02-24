@@ -39,8 +39,11 @@ func (f FileReport) GenerateReport(outcomes []EvaluationOutcome) FileReport {
 
 // Print outputs the report data contained in the FileReport, specifically the outcomes array, to the terminal.
 func (f FileReport) Print() {
-	printReports(f.Outcomes)
+	log.Printf("%s\n", reportLineBreak(ReportOff))
 	printReportSummary(f)
+	log.Printf("%s\n", reportLineBreak(ReportOff))
+	printOutcomes(f.Outcomes)
+
 }
 
 // filterOutcomeBy filters the Outcomes of the FileReport based on the provided predicate function and returns the filtered results.
@@ -56,24 +59,17 @@ func (f FileReport) filterOutcomeBy(fn func(outcome EvaluationOutcome) bool) []E
 	return result
 }
 
-// printReports outputs a formatted report for each EvaluationOutcome in the provided slice, grouped and separated by report level.
-func printReports(outcomes []EvaluationOutcome) {
-	for index, outcome := range outcomes {
-		if index == 0 {
-			log.Println(reportLineBreak(outcome.Report))
-		}
-
+// printOutcomes outputs a formatted report for each EvaluationOutcome in the provided slice, grouped and separated by report level.
+func printOutcomes(outcomes []EvaluationOutcome) {
+	for _, outcome := range outcomes {
 		printReport(outcome)
-		log.Println(reportLineBreak(outcome.Report))
 	}
 }
 
-// printReportSummary outputs a colored summary of the total errors and warnings contained in the provided FileReport.
+// printReportSummary outputs a coloured summary of the total errors and warnings contained in the provided FileReport.
 func printReportSummary(report FileReport) {
-	log.Println("")
 	log.Printf("%s: %s\n", chalk.Blue("File"), report.FileName)
 	log.Printf("%s: %d  |  %s: %d\n", chalk.Red("Errors"), report.TotalErrors, chalk.Yellow("Warnings"), report.TotalWarns)
-	log.Println("")
 }
 
 // printReport outputs a formatted report for the given EvaluationOutcome, including rule details and associated nodes.
@@ -84,14 +80,17 @@ func printReport(outcome EvaluationOutcome) {
 
 	level := reportLevel(outcome.Report)
 
-	log.Println()
-	log.Printf("[%s] %s: %s\n", level, chalk.Blue(outcome.RuleName), outcome.RuleDescription)
-	log.Printf("[%s] %s", level, outcome.File)
+	log.Printf("[%s] %s:\n", level, chalk.Blue(outcome.RuleName))
+	log.Printf("%s\n", outcome.RuleDescription)
+	if len(outcome.Nodes) > 0 {
+		log.Println(chalk.Blue("Nodes:"))
+	}
 
 	for _, node := range outcome.Nodes {
 		log.Printf("  - %s", node.Name)
 	}
-	log.Println()
+
+	log.Println("")
 }
 
 // reportLineBreak generates a colored line as a string based on the provided report level for terminal output separation.

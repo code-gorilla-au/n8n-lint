@@ -1,7 +1,6 @@
 package rules
 
 import (
-	"errors"
 	"sync"
 
 	"github.com/code-gorilla-au/n8n-lint/internal/n8n"
@@ -14,6 +13,8 @@ type WorkerOrchestrator struct {
 	ErrChan       chan error
 	ResultChan    chan FileReport
 	Jobs          chan n8n.Workflow
+	FileReports   []FileReport
+	Errors        []error
 	Workers       []Worker
 	WG            *sync.WaitGroup
 }
@@ -51,7 +52,6 @@ func NewOrchestrator(config Configuration) *WorkerOrchestrator {
 // Start launches all workers in the orchestrator and increments the WaitGroup counter for each worker.
 func (o *WorkerOrchestrator) Start() {
 	for _, w := range o.Workers {
-		o.WG.Add(1)
 		go w.Run()
 	}
 }
@@ -72,20 +72,38 @@ func (o *WorkerOrchestrator) Wait() {
 	close(o.ErrChan)
 }
 
-// Results collects all FileReport objects from the ResultChan, aggregates errors from the ErrChan, and returns them.
-func (o *WorkerOrchestrator) Results() ([]FileReport, error) {
-	results := make([]FileReport, 0)
-	for report := range o.ResultChan {
-		results = append(results, report)
+// CollectResults collects all FileReport objects from the ResultChan, aggregates errors from the ErrChan, and returns them.
+func (o *WorkerOrchestrator) CollectResults() {
+	go o.collectFileReports()
+	go o.collectErrors()
+}
+
+// collectFileReports collects FileReport objects from the ResultChan channel and appends them to the FileReports slice.
+func (o *WorkerOrchestrator) collectFileReports() {
+	for {
+		select {
+		case report, ok := <-o.ResultChan:
+			if !ok {
+				break
+			}
+
+			o.FileReports = append(o.FileReports, report)
+		}
 	}
+}
 
-	errList := make([]error, 0)
+// collectErrors collects errors from the ErrChan channel and appends them to the Errors slice until the channel is closed.
+func (o *WorkerOrchestrator) collectErrors() {
+	for {
+		select {
+		case err, ok := <-o.ErrChan:
+			if !ok {
+				break
+			}
 
-	for err := range o.ErrChan {
-		errList = append(errList, err)
+			o.Errors = append(o.Errors, err)
+		}
 	}
-
-	return results, errors.Join(errList...)
 }
 
 // Worker represents a unit responsible for processing workflows, reporting errors, and generating file evaluation results.
@@ -100,14 +118,19 @@ type Worker struct {
 
 // Run processes jobs from the JobChan, executes them using the engine, and sends results or errors to respective channels.
 func (w *Worker) Run() {
-	defer w.WG.Done()
 
 	for job := range w.JobChan {
+		w.WG.Add(1)
+
 		report, err := w.engine.Run(job)
 		if err != nil {
+			w.WG.Done()
+
 			w.ErrChan <- err
 			continue
 		}
+
+		w.WG.Done()
 
 		w.ResultChan <- report
 	}

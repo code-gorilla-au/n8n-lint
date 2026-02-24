@@ -1,6 +1,7 @@
 package rules
 
 import (
+	"errors"
 	"sync"
 
 	"github.com/code-gorilla-au/n8n-lint/internal/n8n"
@@ -49,15 +50,25 @@ func NewOrchestrator(config Configuration) *WorkerOrchestrator {
 	}
 }
 
-// Start launches all workers in the orchestrator and increments the WaitGroup counter for each worker.
-func (o *WorkerOrchestrator) Start() {
+// Run initiates workflow processing, collects results, and aggregates errors; returns processed file reports and errors.
+func (o *WorkerOrchestrator) Run(workflows []n8n.Workflow) ([]FileReport, error) {
+	o.collectResults()
+	o.start()
+	o.load(workflows)
+	o.wait()
+
+	return o.FileReports, errors.Join(o.Errors...)
+}
+
+// start launches all workers in the orchestrator and increments the WaitGroup counter for each worker.
+func (o *WorkerOrchestrator) start() {
 	for _, w := range o.Workers {
 		go w.Run()
 	}
 }
 
-// Load inserts a list of workflows into the orchestrator's job queue and closes the queue once all workflows are added.
-func (o *WorkerOrchestrator) Load(jobs []n8n.Workflow) {
+// load inserts a list of workflows into the orchestrator's job queue and closes the queue once all workflows are added.
+func (o *WorkerOrchestrator) load(jobs []n8n.Workflow) {
 	for _, job := range jobs {
 		o.Jobs <- job
 	}
@@ -65,15 +76,15 @@ func (o *WorkerOrchestrator) Load(jobs []n8n.Workflow) {
 	close(o.Jobs)
 }
 
-// Wait blocks until all workers have finished processing, then closes the result and error channels.
-func (o *WorkerOrchestrator) Wait() {
+// wait blocks until all workers have finished processing, then closes the result and error channels.
+func (o *WorkerOrchestrator) wait() {
 	o.WG.Wait()
 	close(o.ResultChan)
 	close(o.ErrChan)
 }
 
-// CollectResults collects all FileReport objects from the ResultChan, aggregates errors from the ErrChan, and returns them.
-func (o *WorkerOrchestrator) CollectResults() {
+// collectResults collects all FileReport objects from the ResultChan, aggregates errors from the ErrChan, and returns them.
+func (o *WorkerOrchestrator) collectResults() {
 	go o.collectFileReports()
 	go o.collectErrors()
 }
@@ -124,15 +135,14 @@ func (w *Worker) Run() {
 
 		report, err := w.engine.Run(job)
 		if err != nil {
-			w.WG.Done()
 
 			w.ErrChan <- err
+			w.WG.Done()
 			continue
 		}
 
-		w.WG.Done()
-
 		w.ResultChan <- report
+		w.WG.Done()
 	}
 
 }

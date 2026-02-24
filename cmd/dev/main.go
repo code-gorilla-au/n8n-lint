@@ -28,14 +28,9 @@ func main() {
 
 	orchestrator := rules.NewOrchestrator(config)
 
-	orchestrator.Start()
-	orchestrator.CollectResults()
+	reports, err := orchestrator.Run(workflows)
 
-	orchestrator.Load(workflows)
-
-	orchestrator.Wait()
-
-	for _, report := range orchestrator.FileReports {
+	for _, report := range reports {
 		report.Print()
 	}
 

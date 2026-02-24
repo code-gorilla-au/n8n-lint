@@ -10,15 +10,34 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
+var Version = "dev-v1.0.0"
+
 func main() {
 	setLogger()
+
+	cwd, cErr := os.Getwd()
+	if cErr != nil {
+		log.Fatal(cErr)
+	}
+
+	defaultConfigPath := filepath.Clean(filepath.Join(cwd, ".n8n-lint.yaml"))
+	flagConfigPath := defaultConfigPath
 
 	cmd := &cli.Command{
 		Name:        "n8n-lint",
 		Aliases:     nil,
 		Usage:       "Simple n8n workflow JSON linter.",
-		Version:     "",
+		Version:     Version,
 		Description: "Simple lint tool for n8n workflow JSON files.",
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:        "config",
+				Usage:       "override the default config file path",
+				Value:       defaultConfigPath,
+				Destination: &flagConfigPath,
+				Aliases:     []string{"c"},
+			},
+		},
 		Commands: []*cli.Command{
 			{
 				Name:  "check",
@@ -29,6 +48,8 @@ func main() {
 						return err
 					}
 
+					log.Println("config", defaultConfigPath)
+
 					log.Println("found files:", len(files))
 					log.Println(files)
 					return nil
@@ -36,8 +57,6 @@ func main() {
 			},
 		},
 	}
-
-	log.Println("starting n8n-lint")
 
 	if err := cmd.Run(context.Background(), os.Args); err != nil {
 		log.Fatal(err)

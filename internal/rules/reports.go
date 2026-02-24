@@ -81,8 +81,14 @@ func printReport(outcome EvaluationOutcome) {
 	level := reportLevel(outcome.Report)
 
 	log.Printf("[%s] %s:\n", level, chalk.Blue(outcome.RuleName))
-	log.Printf("%s\n", outcome.RuleDescription)
+
+	descriptionChunks := chunkStringsByLength(outcome.RuleDescription, terminalLength())
+	for _, chunk := range descriptionChunks {
+		log.Printf("  %s\n", chunk)
+	}
+
 	if len(outcome.Nodes) > 0 {
+		log.Println("")
 		log.Println(chalk.Blue("Nodes:"))
 	}
 
@@ -96,7 +102,7 @@ func printReport(outcome EvaluationOutcome) {
 // reportLineBreak generates a colored line as a string based on the provided report level for terminal output separation.
 func reportLineBreak(report ReportLevel) string {
 
-	text := strings.Repeat("-", terminalLength())
+	text := strings.Repeat("━", terminalLength())
 
 	switch report {
 	case ReportError:
@@ -122,7 +128,7 @@ func terminalLength() int {
 		return 80
 	}
 
-	return width - int(math.Abs(float64(width)*0.5))
+	return width - int(math.Abs(float64(width)*0.4))
 }
 
 // reportLevel formats the report level as a colored string based on its severity or defaults to uppercase gray text.
@@ -135,4 +141,22 @@ func reportLevel(report ReportLevel) string {
 	default:
 		return chalk.Gray(strings.ToUpper(report))
 	}
+}
+
+func chunkStringsByLength(s string, chunkSize int) []string {
+	var chunks []string
+	tokens := strings.Split(s, " ")
+
+	chunk := ""
+	for _, word := range tokens {
+		if len(chunk)+len(word) < chunkSize {
+			chunk += word + " "
+		} else {
+			chunks = append(chunks, chunk)
+			chunk = word + " "
+		}
+	}
+
+	chunks = append(chunks, chunk)
+	return chunks
 }

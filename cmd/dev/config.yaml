@@ -9,4 +9,4 @@ ignore:
   - "node_modules/**"
 
 include:
-  - "workflows/**/*.json"
+  - "**/*.json"

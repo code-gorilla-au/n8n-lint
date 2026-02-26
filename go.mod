@@ -12,6 +12,7 @@ require (
 )
 
 require (
+	github.com/bmatcuk/doublestar/v4 v4.10.0 // indirect
 	github.com/code-gorilla-au/env v1.1.1 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	go.yaml.in/yaml/v2 v2.4.2 // indirect

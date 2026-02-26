@@ -9,6 +9,8 @@ import (
 
 	"slices"
 
+	"github.com/bmatcuk/doublestar/v4"
+
 	"github.com/code-gorilla-au/n8n-lint/internal/chalk"
 )
 
@@ -64,7 +66,7 @@ func LoadWorkflowsFromDir(dirPath string, include []string, exclude []string) ([
 			}
 
 			matched := slices.ContainsFunc(include, func(pattern string) bool {
-				m, _ := filepath.Match(pattern, relPath)
+				m, _ := doublestar.Match(pattern, relPath)
 				return m
 			})
 
@@ -81,7 +83,7 @@ func LoadWorkflowsFromDir(dirPath string, include []string, exclude []string) ([
 			}
 
 			matched := slices.ContainsFunc(exclude, func(pattern string) bool {
-				m, _ := filepath.Match(pattern, relPath)
+				m, _ := doublestar.Match(pattern, relPath)
 				return m
 			})
 

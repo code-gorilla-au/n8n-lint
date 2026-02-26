@@ -1,3 +1,5 @@
+github.com/bmatcuk/doublestar/v4 v4.10.0 h1:zU9WiOla1YA122oLM6i4EXvGW62DvKZVxIe6TYWexEs=
+github.com/bmatcuk/doublestar/v4 v4.10.0/go.mod h1:xBQ8jztBU6kakFMg+8WGxn0c6z1fTSPVIjEY1Wr7jzc=
 github.com/code-gorilla-au/env v1.1.1 h1:4rkSwCnyymKh+KGAOPx3fEg9v2ZV5i9r92bSf7xvnCE=
 github.com/code-gorilla-au/env v1.1.1/go.mod h1:KE4Ymfz5MhMi7SX3ZKH4iMFAHsDCvwOV8WTzgpwzzE4=
 github.com/code-gorilla-au/odize v1.3.4 h1:QHEM7v8/qH9R0QO6tVWh0yKr+VMv3RGC3PcIADwDGVA=

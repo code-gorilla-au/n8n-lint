@@ -80,6 +80,11 @@ func TestLoadWorkflowsFromDir(t *testing.T) {
 			workflows, err = LoadWorkflowsFromDir(tmpDir, []string{"root.json"}, nil)
 			odize.AssertNoError(t, err)
 			odize.AssertEqual(t, 1, len(workflows))
+
+			// Test recursive match with **
+			workflows, err = LoadWorkflowsFromDir(tmpDir, []string{"**/*.json"}, nil)
+			odize.AssertNoError(t, err)
+			odize.AssertEqual(t, 2, len(workflows))
 		}).
 		Run()
 	odize.AssertNoError(t, err)

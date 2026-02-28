@@ -12,8 +12,12 @@ tasks:
     desc: Build the cli.
     vars:
       VERSION: '{{default "dev" .VERSION}}'
+      OS: '{{default OS .OS}}'
+      ARCH: '{{default ARCH .ARCH}}'
+      EXT: '{{if eq .OS "windows"}}.exe{{ else }}{{ end }}'
+      BINARY_NAME: 'n8n-lint-{{ .OS }}-{{ .ARCH }}{{ .EXT }}'
     cmds:
-      - go build -ldflags "-X main.Version={{.VERSION}}" -o n8n-lint ./cmd/cli/main.go
+      - GOOS={{ .OS }} GOARCH={{ .ARCH }} go build -ldflags "-X main.Version={{ .VERSION }}" -o {{ .BINARY_NAME }} ./cmd/cli/main.go
 
   ci:
     desc: Run go ci tasks.

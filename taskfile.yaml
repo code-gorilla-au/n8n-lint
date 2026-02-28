@@ -8,6 +8,12 @@ vars:
 
 
 tasks:
+  build:
+    desc: Build the cli.
+    vars:
+      VERSION: '{{default "dev" .VERSION}}'
+    cmds:
+      - go build -ldflags "-X main.Version={{.VERSION}}" -o n8n-lint ./cmd/cli/main.go
 
   ci:
     desc: Run go ci tasks.
@@ -75,12 +81,6 @@ tasks:
     cmds:
       - gow test -cover -coverprofile={{ .GOLANG_COVERAGE }} -failfast {{ .GOLANG_WORKSPACES }}
 
-  build:
-    desc: Build the cli.
-    vars:
-      VERSION: '{{default "dev" .VERSION}}'
-    cmds:
-      - go build -ldflags "-X main.Version={{.VERSION}}" -o n8n-lint ./cmd/cli/main.go
 
   gen-coverage:
     desc: Generate go coverage.

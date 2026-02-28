@@ -36,6 +36,10 @@ var ruleNoDeadEnds = Rule{
 				continue
 			}
 
+			if slices.Contains(defaultAllowedDeadEndTypes, node.Node.Type) {
+				continue
+			}
+
 			outcome.Nodes = append(outcome.Nodes, node.Node)
 		}
 
@@ -46,6 +50,7 @@ var ruleNoDeadEnds = Rule{
 }
 
 var defaultAllowedDeadEnds = []string{"STOP", "END", "DONE", "FINISH", "SUCCESS"}
+var defaultAllowedDeadEndTypes = []string{"n8n-nodes-base.stickyNote", "n8n-nodes-base.noOp"}
 
 // getAllowedDeadEnds retrieves the list of allowed dead-end node names from the configuration or defaults if not provided.
 func getAllowedDeadEnds(config Ruleset) []string {

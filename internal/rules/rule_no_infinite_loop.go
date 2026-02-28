@@ -28,9 +28,12 @@ var ruleNoInfiniteLoop = Rule{
 		})
 
 		for _, circularNode := range circularNodes {
+
 			outcome.Nodes = append(outcome.Nodes, circularNode.Node)
 		}
 
 		return outcome, nil
 	},
 }
+
+var defaultAllowedInfiniteLoop = []string{"n8n-nodes-base.splitInBatches"}

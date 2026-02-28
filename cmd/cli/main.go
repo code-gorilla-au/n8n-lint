@@ -55,7 +55,13 @@ func main() {
 						return err
 					}
 
-					log.Println(len(workflows))
+					orchestrator := rules.NewOrchestrator(config)
+
+					reports, err := orchestrator.Run(workflows)
+
+					for _, report := range reports {
+						report.Print()
+					}
 
 					return nil
 				},

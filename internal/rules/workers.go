@@ -70,10 +70,12 @@ func (o *WorkerOrchestrator) start() {
 
 // load inserts a list of workflows into the orchestrator's job queue and closes the queue once all workflows are added.
 func (o *WorkerOrchestrator) load(jobs []n8n.Workflow) {
+	o.WG.Add(1)
 	for _, job := range jobs {
 		o.Jobs <- job
 	}
 
+	o.WG.Done()
 	close(o.Jobs)
 
 }
@@ -119,6 +121,7 @@ type Worker struct {
 
 // Run processes jobs from the JobChan, executes them using the engine, and sends results or errors to respective channels.
 func (w *Worker) Run() {
+	w.WG.Add(1)
 
 	for job := range w.JobChan {
 		w.WG.Add(1)
@@ -135,4 +138,5 @@ func (w *Worker) Run() {
 		w.WG.Done()
 	}
 
+	w.WG.Done()
 }

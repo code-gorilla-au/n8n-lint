@@ -6,7 +6,12 @@ rules:
 
 
 ignore:
-  - "node_modules/**"
+  - "**/node_modules/**"
+  - "**/package.json"
+  - "**/package-lock.json"
+  - "**/yarn.lock"
+  - "**/dist/**"
+  - "**/.releaserc.json"
 
 include:
   - "**/*.json"

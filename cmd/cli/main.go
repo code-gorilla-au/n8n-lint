@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 
 	"github.com/code-gorilla-au/n8n-lint/internal/chalk"
+	"github.com/code-gorilla-au/n8n-lint/internal/n8n"
+	"github.com/code-gorilla-au/n8n-lint/internal/rules"
 	"github.com/urfave/cli/v3"
 )
 
@@ -43,15 +45,18 @@ func main() {
 				Name:  "check",
 				Usage: "check n8n workflow file(s) using a glob pattern",
 				Action: func(ctx context.Context, cmd *cli.Command) error {
-					files, err := filepath.Glob(cmd.Args().First())
+					config, err := rules.LoadConfigFromFile(flagConfigPath)
 					if err != nil {
 						return err
 					}
 
-					log.Println("config", defaultConfigPath)
+					workflows, err := n8n.LoadWorkflowsFromDir(cwd, config.Include, config.Ignore)
+					if err != nil {
+						return err
+					}
 
-					log.Println("found files:", len(files))
-					log.Println(files)
+					log.Println(len(workflows))
+
 					return nil
 				},
 			},

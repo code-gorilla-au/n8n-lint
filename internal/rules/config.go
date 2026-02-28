@@ -15,9 +15,9 @@ import (
 func LoadConfigFromFile(path string) (Configuration, error) {
 	data, err := os.ReadFile(filepath.Clean(path))
 	if err != nil {
-		log.Println(chalk.Red("Error reading configuration file:"), err)
+		log.Println(chalk.Yellow("No config file found, using default config"))
 
-		return Configuration{}, err
+		return Configuration{}, nil
 	}
 
 	var config Configuration

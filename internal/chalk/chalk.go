@@ -66,6 +66,6 @@ func colourTerminalOutput(msg string, colourCode colourCode) string {
 	return msg
 }
 
-func isTerminal() bool {
+var isTerminal = func() bool {
 	return isatty.IsTerminal(os.Stdout.Fd()) || isatty.IsCygwinTerminal(os.Stdout.Fd())
 }

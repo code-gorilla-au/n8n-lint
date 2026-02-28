@@ -65,6 +65,7 @@ func (o *WorkerOrchestrator) start() {
 	for _, w := range o.Workers {
 		go w.Run()
 	}
+
 }
 
 // load inserts a list of workflows into the orchestrator's job queue and closes the queue once all workflows are added.
@@ -74,13 +75,15 @@ func (o *WorkerOrchestrator) load(jobs []n8n.Workflow) {
 	}
 
 	close(o.Jobs)
+
 }
 
 // wait blocks until all workers have finished processing, then closes the result and error channels.
 func (o *WorkerOrchestrator) wait() {
 	o.WG.Wait()
-	close(o.ResultChan)
+
 	close(o.ErrChan)
+	close(o.ResultChan)
 }
 
 // collectResults collects all FileReport objects from the ResultChan, aggregates errors from the ErrChan, and returns them.

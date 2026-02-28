@@ -10,7 +10,7 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-var Version = "dev-v1.0.0"
+var Version = "dev"
 
 func main() {
 	setLogger()

@@ -10,3 +10,7 @@ Use the template to add a new rule.
 # Generate new rule scaffold 
 pyrotic generate rule --name <rule_name>
 ```
+
+## License
+
+MIT License. See [LICENSE](LICENSE) for details.

@@ -23,7 +23,9 @@ func TestLoadWorkflowsFromDir(t *testing.T) {
 		Test("should return empty slice for empty directory", func(t *testing.T) {
 			tmpDir, err := os.MkdirTemp("", "empty_dir_test")
 			odize.AssertNoError(t, err)
-			defer os.RemoveAll(tmpDir)
+			defer func() {
+				_ = os.RemoveAll(tmpDir)
+			}()
 
 			workflows, err := LoadWorkflowsFromDir(tmpDir, nil, nil)
 			odize.AssertNoError(t, err)
@@ -55,7 +57,9 @@ func TestLoadWorkflowsFromDir(t *testing.T) {
 			// Create a nested structure for testing
 			tmpDir, err := os.MkdirTemp("", "nested_test")
 			odize.AssertNoError(t, err)
-			defer os.RemoveAll(tmpDir)
+			defer func() {
+				_ = os.RemoveAll(tmpDir)
+			}()
 
 			nestedDir := filepath.Join(tmpDir, "nested")
 			err = os.Mkdir(nestedDir, 0755)

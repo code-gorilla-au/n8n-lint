@@ -52,7 +52,7 @@ func NewOrchestrator(config Configuration) *WorkerOrchestrator {
 
 // Run initiates workflow processing, collects results, and aggregates errors; returns processed file reports and errors.
 func (o *WorkerOrchestrator) Run(workflows []n8n.Workflow) ([]FileReport, error) {
-	o.collectResults()
+	go o.collectResults()
 	o.start()
 	o.load(workflows)
 	o.wait()
@@ -88,12 +88,6 @@ func (o *WorkerOrchestrator) wait() {
 
 // collectResults collects all FileReport objects from the ResultChan, aggregates errors from the ErrChan, and returns them.
 func (o *WorkerOrchestrator) collectResults() {
-	go o.collectFileReports()
-	go o.collectErrors()
-}
-
-// collectFileReports collects FileReport objects from the ResultChan channel and appends them to the FileReports slice.
-func (o *WorkerOrchestrator) collectFileReports() {
 	for {
 		select {
 		case report, ok := <-o.ResultChan:
@@ -102,14 +96,7 @@ func (o *WorkerOrchestrator) collectFileReports() {
 			}
 
 			o.FileReports = append(o.FileReports, report)
-		}
-	}
-}
 
-// collectErrors collects errors from the ErrChan channel and appends them to the Errors slice until the channel is closed.
-func (o *WorkerOrchestrator) collectErrors() {
-	for {
-		select {
 		case err, ok := <-o.ErrChan:
 			if !ok {
 				break

@@ -24,11 +24,7 @@ var ruleNoInfiniteLoop = Rule{
 
 		circularNodes := finder.FindBy(func(node *n8n.NodeMap) bool {
 			_, err := finder.FindAncestor(node.Node.Name, node.Node.Name)
-			if err != nil {
-				return false
-			}
-
-			return true
+			return err == nil
 		})
 
 		for _, circularNode := range circularNodes {

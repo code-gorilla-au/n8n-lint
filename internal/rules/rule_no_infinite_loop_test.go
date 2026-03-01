@@ -70,7 +70,7 @@ func TestRule_no_infinite_loop_with_valid_loop(t *testing.T) {
 			})
 			odize.AssertNoError(t, oErr)
 
-			odize.AssertEqual(t, ReportError, outcome.Report)
+			odize.AssertEqual(t, ReportOff, outcome.Report)
 			odize.AssertEqual(t, 0, len(outcome.Nodes))
 
 		}).

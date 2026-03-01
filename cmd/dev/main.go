@@ -6,11 +6,14 @@ import (
 
 	"github.com/code-gorilla-au/n8n-lint/internal/chalk"
 	"github.com/code-gorilla-au/n8n-lint/internal/engine"
+	"github.com/code-gorilla-au/n8n-lint/internal/logging"
 	"github.com/code-gorilla-au/n8n-lint/internal/n8n"
 	"github.com/code-gorilla-au/n8n-lint/internal/rules"
 )
 
 func main() {
+	logging.SetVerbose()
+
 	configFile := filepath.Clean("cmd/dev/config.yaml")
 	jsonDir := filepath.Clean("internal/rules/test-data")
 

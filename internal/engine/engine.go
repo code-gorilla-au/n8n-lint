@@ -4,6 +4,7 @@ import (
 	"errors"
 	"sync"
 
+	"github.com/code-gorilla-au/n8n-lint/internal/logging"
 	"github.com/code-gorilla-au/n8n-lint/internal/n8n"
 	"github.com/code-gorilla-au/n8n-lint/internal/reports"
 	"github.com/code-gorilla-au/n8n-lint/internal/rules"
@@ -107,6 +108,8 @@ func (w *Worker) Run() {
 
 	for job := range w.JobChan {
 		w.WG.Add(1)
+
+		logging.Log("Processing workflow", job.ID)
 
 		outcomes, err := w.engine.Run(job)
 		if err != nil {

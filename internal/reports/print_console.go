@@ -24,12 +24,9 @@ func (r *ConsoleReporter) Print(summary Summary) {
 		if shouldReport(report) {
 			printFileReport(report)
 		}
-
 	}
 
-	if summary.ShouldReport() {
-		printSummaryTable(summary)
-	}
+	printSummaryTable(summary)
 }
 
 // printSummaryTable prints a formatted summary table of file reports, including error and warning counts, to the terminal.
@@ -60,6 +57,8 @@ func printSummaryTable(summary Summary) {
 
 	log.Printf("%s\n", reportLineBreak(rules.ReportOff))
 	log.Printf("%-*s | %-6d | %-8d\n", maxFileLen, chalk.Bold("Total"), totalErrors, totalWarns)
+	log.Printf("%s\n", reportLineBreak(rules.ReportOff))
+	log.Println("")
 }
 
 // printFileReport prints a detailed report with summaries and outcomes for a given FileReport.

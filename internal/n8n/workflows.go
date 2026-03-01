@@ -10,13 +10,14 @@ import (
 	"slices"
 
 	"github.com/bmatcuk/doublestar/v4"
+	"github.com/code-gorilla-au/n8n-lint/internal/logging"
 
 	"github.com/code-gorilla-au/n8n-lint/internal/chalk"
 )
 
 // LoadWorkflowFromFile reads a JSON-encoded workflow from a file, unmarshals it, and returns the Workflow object.
 func LoadWorkflowFromFile(path string) (Workflow, error) {
-	log.Println("Loading file:", path)
+	logging.Log("Loading workflow from file: ", path)
 
 	data, err := os.ReadFile(filepath.Clean(path))
 	if err != nil {

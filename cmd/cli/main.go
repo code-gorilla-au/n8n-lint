@@ -2,12 +2,14 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 
 	"github.com/code-gorilla-au/n8n-lint/internal/chalk"
 	"github.com/code-gorilla-au/n8n-lint/internal/engine"
+	"github.com/code-gorilla-au/n8n-lint/internal/logging"
 	"github.com/code-gorilla-au/n8n-lint/internal/n8n"
 	"github.com/code-gorilla-au/n8n-lint/internal/rules"
 	"github.com/urfave/cli/v3"
@@ -25,6 +27,7 @@ func main() {
 
 	defaultConfigPath := filepath.Clean(filepath.Join(cwd, ".n8n-lint.yaml"))
 	flagConfigPath := defaultConfigPath
+	flagVerbose := false
 
 	cmd := &cli.Command{
 		Name:        "n8n-lint",
@@ -40,12 +43,24 @@ func main() {
 				Destination: &flagConfigPath,
 				Aliases:     []string{"c"},
 			},
+			&cli.BoolFlag{
+				Name:        "verbose",
+				Usage:       "enable verbose logging",
+				Value:       false,
+				Destination: &flagVerbose,
+				Aliases:     []string{"v"},
+			},
 		},
 		Commands: []*cli.Command{
 			{
 				Name:  "check",
 				Usage: "check n8n workflow file(s) using a glob pattern",
 				Action: func(ctx context.Context, cmd *cli.Command) error {
+					if flagVerbose {
+						logging.SetVerbose()
+						logging.Log("verbose mode enabled")
+					}
+
 					config, err := rules.LoadConfigFromFile(flagConfigPath)
 					if err != nil {
 						return err
@@ -58,9 +73,16 @@ func main() {
 
 					orchestrator := engine.NewOrchestrator(config)
 
-					reports, err := orchestrator.Run(workflows)
+					summary, err := orchestrator.Run(workflows)
+					if err != nil {
+						return err
+					}
 
-					reports.Print()
+					summary.Print()
+
+					if summary.TotalErrors() > 0 {
+						return fmt.Errorf("failed with %d errors", summary.TotalErrors())
+					}
 
 					return nil
 				},

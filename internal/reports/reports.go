@@ -17,17 +17,6 @@ func (s *Summary) Add(outcomes []rules.EvaluationOutcome) {
 	s.Reports = append(s.Reports, generateReport(outcomes))
 }
 
-// ShouldReport determines whether the summary contains any errors or warnings that should be reported.
-func (s *Summary) ShouldReport() bool {
-	totalErrors := 0
-	totalWarns := 0
-	for _, report := range s.Reports {
-		totalErrors += report.TotalErrors
-		totalWarns += report.TotalWarns
-	}
-	return totalErrors > 0 || totalWarns > 0
-}
-
 func (s *Summary) TotalErrors() int {
 	totalErrors := 0
 

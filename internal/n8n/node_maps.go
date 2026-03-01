@@ -17,7 +17,7 @@ func (n *NodeMap) findChild(search string, opts ...NodeMapFuncOpts) (*NodeMap, e
 	seen := make(map[string]struct{})
 	seen[n.Node.Name] = struct{}{}
 
-	nn, err := childDepthFirstSearch(n, seen, config)
+	nn, err := childDepthFirstSearch(n.Children, seen, config)
 	if err != nil {
 		return nil, err
 	}
@@ -31,9 +31,9 @@ func (n *NodeMap) findChild(search string, opts ...NodeMapFuncOpts) (*NodeMap, e
 
 // childDepthFirstSearch performs a depth-first search on the node graph to find a node with the specified criteria.
 // Prevents infinite loops by keeping track of visited nodes using the seen map and configurable options.
-func childDepthFirstSearch(node *NodeMap, seen map[string]struct{}, opts NodeMapOptions) (*NodeMap, error) {
+func childDepthFirstSearch(nodes []*NodeMap, seen map[string]struct{}, opts NodeMapOptions) (*NodeMap, error) {
 
-	for _, child := range node.Children {
+	for _, child := range nodes {
 		if opts.searchByName != "" && child.Node.Name == opts.searchByName {
 			return child, nil
 		}
@@ -50,7 +50,9 @@ func childDepthFirstSearch(node *NodeMap, seen map[string]struct{}, opts NodeMap
 			continue
 		}
 
-		cc, err := childDepthFirstSearch(child, seen, opts)
+		seen[child.Node.Name] = struct{}{}
+
+		cc, err := childDepthFirstSearch(child.Children, seen, opts)
 		if err != nil {
 			return nil, err
 		}
@@ -78,7 +80,7 @@ func (n *NodeMap) findAncestor(search string, opts ...NodeMapFuncOpts) (*NodeMap
 	seen := make(map[string]struct{})
 	seen[n.Node.Name] = struct{}{}
 
-	aa, err := ancestorDepthFirstSearch(n, seen, config)
+	aa, err := ancestorDepthFirstSearch(n.Parent, seen, config)
 	if err != nil {
 		return nil, err
 	}
@@ -92,10 +94,9 @@ func (n *NodeMap) findAncestor(search string, opts ...NodeMapFuncOpts) (*NodeMap
 
 // ancestorDepthFirstSearch performs a depth-first search to locate a specified ancestor node within a hierarchical structure.
 // It tracks visited nodes to prevent infinite loops and can return an error if infinite loops are detected, based on options.
-func ancestorDepthFirstSearch(node *NodeMap, seen map[string]struct{}, opts NodeMapOptions) (*NodeMap, error) {
-	seen[node.Node.Name] = struct{}{}
+func ancestorDepthFirstSearch(nodes []*NodeMap, seen map[string]struct{}, opts NodeMapOptions) (*NodeMap, error) {
 
-	for _, parent := range node.Parent {
+	for _, parent := range nodes {
 		if opts.searchByName != "" && parent.Node.Name == opts.searchByName {
 			return parent, nil
 		}
@@ -112,7 +113,9 @@ func ancestorDepthFirstSearch(node *NodeMap, seen map[string]struct{}, opts Node
 			continue
 		}
 
-		pp, err := ancestorDepthFirstSearch(parent, seen, opts)
+		seen[parent.Node.Name] = struct{}{}
+
+		pp, err := ancestorDepthFirstSearch(parent.Parent, seen, opts)
 		if err != nil {
 			return nil, err
 		}

@@ -5,15 +5,19 @@ import (
 	"fmt"
 )
 
-// findChild searches the children of the current NodeMap for a node with the specified name and returns it if found.
-// Returns an error if no child with the given name exists.
-func (n *NodeMap) findChild(name string, opts ...NodeMapFuncOpts) (*NodeMap, error) {
+// findChild searches the children of the current NodeMap for a node with the specified name or type and returns it if found.
+// Returns an error if no child with the given criteria exists.
+func (n *NodeMap) findChild(search string, opts ...NodeMapFuncOpts) (*NodeMap, error) {
 	config := WithNodeMapOptions(opts...)
+
+	if config.searchByName == "" && config.searchByType == "" {
+		config.searchByName = search
+	}
 
 	seen := make(map[string]struct{})
 	seen[n.Node.Name] = struct{}{}
 
-	nn, err := childDepthFirstSearch(name, n, seen, config)
+	nn, err := childDepthFirstSearch(n, seen, config)
 	if err != nil {
 		return nil, err
 	}
@@ -22,15 +26,19 @@ func (n *NodeMap) findChild(name string, opts ...NodeMapFuncOpts) (*NodeMap, err
 		return nn, nil
 	}
 
-	return nil, fmt.Errorf("%s: %w", name, ErrNodeNotFound)
+	return nil, fmt.Errorf("%s: %w", search, ErrNodeNotFound)
 }
 
-// childDepthFirstSearch performs a depth-first search on the node graph to find a node with the specified name.
+// childDepthFirstSearch performs a depth-first search on the node graph to find a node with the specified criteria.
 // Prevents infinite loops by keeping track of visited nodes using the seen map and configurable options.
-func childDepthFirstSearch(search string, node *NodeMap, seen map[string]struct{}, opts NodeMapOptions) (*NodeMap, error) {
+func childDepthFirstSearch(node *NodeMap, seen map[string]struct{}, opts NodeMapOptions) (*NodeMap, error) {
 
 	for _, child := range node.Children {
-		if child.Node.Name == search {
+		if opts.searchByName != "" && child.Node.Name == opts.searchByName {
+			return child, nil
+		}
+
+		if opts.searchByType != "" && child.Node.Type == opts.searchByType {
 			return child, nil
 		}
 
@@ -42,7 +50,7 @@ func childDepthFirstSearch(search string, node *NodeMap, seen map[string]struct{
 			continue
 		}
 
-		cc, err := childDepthFirstSearch(search, child, seen, opts)
+		cc, err := childDepthFirstSearch(child, seen, opts)
 		if err != nil {
 			return nil, err
 		}
@@ -55,18 +63,22 @@ func childDepthFirstSearch(search string, node *NodeMap, seen map[string]struct{
 	return nil, nil
 }
 
-// findAncestor traverses parent nodes to locate a specified ancestor.
-// Activley avoids infinite loops by tracking visited nodes in the seen map.
+// findAncestor traverses parent nodes to locate a specified ancestor by name or type.
+// Actively avoids infinite loops by tracking visited nodes in the seen map.
 //
 // If ErrOnInfiniteLoop is set to true, an error will be returned if an infinite loop is detected.
 // Otherwise, the first ancestor found will be returned.
-func (n *NodeMap) findAncestor(ancestor string, opts ...NodeMapFuncOpts) (*NodeMap, error) {
+func (n *NodeMap) findAncestor(search string, opts ...NodeMapFuncOpts) (*NodeMap, error) {
 	config := WithNodeMapOptions(opts...)
+
+	if config.searchByName == "" && config.searchByType == "" {
+		config.searchByName = search
+	}
 
 	seen := make(map[string]struct{})
 	seen[n.Node.Name] = struct{}{}
 
-	aa, err := ancestorDepthFirstSearch(ancestor, n, seen, config)
+	aa, err := ancestorDepthFirstSearch(n, seen, config)
 	if err != nil {
 		return nil, err
 	}
@@ -75,16 +87,20 @@ func (n *NodeMap) findAncestor(ancestor string, opts ...NodeMapFuncOpts) (*NodeM
 		return aa, nil
 	}
 
-	return nil, fmt.Errorf("%s: %w", ancestor, ErrNodeNotFound)
+	return nil, fmt.Errorf("%s: %w", search, ErrNodeNotFound)
 }
 
 // ancestorDepthFirstSearch performs a depth-first search to locate a specified ancestor node within a hierarchical structure.
 // It tracks visited nodes to prevent infinite loops and can return an error if infinite loops are detected, based on options.
-func ancestorDepthFirstSearch(ancestor string, node *NodeMap, seen map[string]struct{}, opts NodeMapOptions) (*NodeMap, error) {
+func ancestorDepthFirstSearch(node *NodeMap, seen map[string]struct{}, opts NodeMapOptions) (*NodeMap, error) {
 	seen[node.Node.Name] = struct{}{}
 
 	for _, parent := range node.Parent {
-		if parent.Node.Name == ancestor {
+		if opts.searchByName != "" && parent.Node.Name == opts.searchByName {
+			return parent, nil
+		}
+
+		if opts.searchByType != "" && parent.Node.Type == opts.searchByType {
 			return parent, nil
 		}
 
@@ -96,7 +112,7 @@ func ancestorDepthFirstSearch(ancestor string, node *NodeMap, seen map[string]st
 			continue
 		}
 
-		pp, err := ancestorDepthFirstSearch(ancestor, parent, seen, opts)
+		pp, err := ancestorDepthFirstSearch(parent, seen, opts)
 		if err != nil {
 			return nil, err
 		}
@@ -140,6 +156,12 @@ type NodeMapOptions struct {
 
 	// ErrOnInfiniteLoop determines whether to raise an error if an infinite loop is detected during node mapping.
 	ErrOnInfiniteLoop bool
+
+	// searchByName is the name of the node to search for.
+	searchByName string
+
+	// searchByType is the type of the node to search for.
+	searchByType string
 }
 
 // NodeMapFuncOpts is a function type for configuring NodeMapOptions used in node traversal and mapping operations.
@@ -161,4 +183,22 @@ func NodeMapOptErrOnInfiniteLoop(options *NodeMapOptions) NodeMapOptions {
 	options.ErrOnInfiniteLoop = true
 
 	return *options
+}
+
+// NodeMapOptSearchByName sets the search criteria to search by node name.
+func NodeMapOptSearchByName(name string) NodeMapFuncOpts {
+	return func(options *NodeMapOptions) NodeMapOptions {
+		options.searchByName = name
+
+		return *options
+	}
+}
+
+// NodeMapOptSearchByType sets the search criteria to search by node type.
+func NodeMapOptSearchByType(nodeType string) NodeMapFuncOpts {
+	return func(options *NodeMapOptions) NodeMapOptions {
+		options.searchByType = nodeType
+
+		return *options
+	}
 }

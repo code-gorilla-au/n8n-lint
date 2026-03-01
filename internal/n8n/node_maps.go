@@ -17,7 +17,9 @@ func (n *NodeMap) findChild(search string, opts ...NodeMapFuncOpts) (*NodeMap, e
 	seen := make(map[string]struct{})
 	seen[n.Node.Name] = struct{}{}
 
-	nn, err := childDepthFirstSearch(n.Children, seen, config)
+	nn, err := depthFirstSearch(n.Children, seen, config, func(nm *NodeMap) []*NodeMap {
+		return nm.Children
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -27,42 +29,6 @@ func (n *NodeMap) findChild(search string, opts ...NodeMapFuncOpts) (*NodeMap, e
 	}
 
 	return nil, fmt.Errorf("%s: %w", search, ErrNodeNotFound)
-}
-
-// childDepthFirstSearch performs a depth-first search on the node graph to find a node with the specified criteria.
-// Prevents infinite loops by keeping track of visited nodes using the seen map and configurable options.
-func childDepthFirstSearch(nodes []*NodeMap, seen map[string]struct{}, opts NodeMapOptions) (*NodeMap, error) {
-
-	for _, child := range nodes {
-		if opts.searchByName != "" && child.Node.Name == opts.searchByName {
-			return child, nil
-		}
-
-		if opts.searchByType != "" && child.Node.Type == opts.searchByType {
-			return child, nil
-		}
-
-		if _, ok := seen[child.Node.Name]; ok {
-			if opts.ErrOnInfiniteLoop {
-				return nil, fmt.Errorf("%s: %w", child.Node.Name, ErrInfiniteLoop)
-			}
-
-			continue
-		}
-
-		seen[child.Node.Name] = struct{}{}
-
-		cc, err := childDepthFirstSearch(child.Children, seen, opts)
-		if err != nil {
-			return nil, err
-		}
-
-		if cc != nil {
-			return cc, nil
-		}
-	}
-
-	return nil, nil
 }
 
 // findAncestor traverses parent nodes to locate a specified ancestor by name or type.
@@ -80,7 +46,9 @@ func (n *NodeMap) findAncestor(search string, opts ...NodeMapFuncOpts) (*NodeMap
 	seen := make(map[string]struct{})
 	seen[n.Node.Name] = struct{}{}
 
-	aa, err := ancestorDepthFirstSearch(n.Parent, seen, config)
+	aa, err := depthFirstSearch(n.Parent, seen, config, func(nm *NodeMap) []*NodeMap {
+		return nm.Parent
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -92,36 +60,37 @@ func (n *NodeMap) findAncestor(search string, opts ...NodeMapFuncOpts) (*NodeMap
 	return nil, fmt.Errorf("%s: %w", search, ErrNodeNotFound)
 }
 
-// ancestorDepthFirstSearch performs a depth-first search to locate a specified ancestor node within a hierarchical structure.
-// It tracks visited nodes to prevent infinite loops and can return an error if infinite loops are detected, based on options.
-func ancestorDepthFirstSearch(nodes []*NodeMap, seen map[string]struct{}, opts NodeMapOptions) (*NodeMap, error) {
+// depthFirstSearch performs a depth-first search on the node graph to find a node with the specified criteria.
+// It accepts a getNextNodes function to determine which nodes to traverse next (e.g., children or parents).
+// Prevents infinite loops by keeping track of visited nodes using the seen map and configurable options.
+func depthFirstSearch(nodes []*NodeMap, seen map[string]struct{}, opts NodeMapOptions, getNextNodes func(*NodeMap) []*NodeMap) (*NodeMap, error) {
 
-	for _, parent := range nodes {
-		if opts.searchByName != "" && parent.Node.Name == opts.searchByName {
-			return parent, nil
+	for _, node := range nodes {
+		if opts.searchByName != "" && node.Node.Name == opts.searchByName {
+			return node, nil
 		}
 
-		if opts.searchByType != "" && parent.Node.Type == opts.searchByType {
-			return parent, nil
+		if opts.searchByType != "" && node.Node.Type == opts.searchByType {
+			return node, nil
 		}
 
-		if _, ok := seen[parent.Node.Name]; ok {
+		if _, ok := seen[node.Node.Name]; ok {
 			if opts.ErrOnInfiniteLoop {
-				return nil, fmt.Errorf("%s: %w", parent.Node.Name, ErrInfiniteLoop)
+				return nil, fmt.Errorf("%s: %w", node.Node.Name, ErrInfiniteLoop)
 			}
 
 			continue
 		}
 
-		seen[parent.Node.Name] = struct{}{}
+		seen[node.Node.Name] = struct{}{}
 
-		pp, err := ancestorDepthFirstSearch(parent.Parent, seen, opts)
+		res, err := depthFirstSearch(getNextNodes(node), seen, opts, getNextNodes)
 		if err != nil {
 			return nil, err
 		}
 
-		if pp != nil {
-			return pp, nil
+		if res != nil {
+			return res, nil
 		}
 	}
 

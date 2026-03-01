@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	github.com/bmatcuk/doublestar/v4 v4.10.0
-	github.com/code-gorilla-au/odize v1.3.4
+	github.com/code-gorilla-au/odize v1.3.5
 	github.com/mattn/go-isatty v0.0.20
 	github.com/urfave/cli/v3 v3.6.2
 	golang.org/x/term v0.40.0

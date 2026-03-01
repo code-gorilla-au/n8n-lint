@@ -7,11 +7,12 @@ import (
 
 // findChild searches the children of the current NodeMap for a node with the specified name or type and returns it if found.
 // Returns an error if no child with the given criteria exists.
-func (n *NodeMap) findChild(search string, opts ...NodeMapFuncOpts) (*NodeMap, error) {
+func (n *NodeMap) findChild(opts ...NodeMapFuncOpts) (*NodeMap, error) {
 	config := WithNodeMapOptions(opts...)
 
-	if config.searchByName == "" && config.searchByType == "" {
-		config.searchByName = search
+	search, err := resolveSearchCriteria(config)
+	if err != nil {
+		return nil, err
 	}
 
 	seen := make(map[string]struct{})
@@ -36,11 +37,12 @@ func (n *NodeMap) findChild(search string, opts ...NodeMapFuncOpts) (*NodeMap, e
 //
 // If ErrOnInfiniteLoop is set to true, an error will be returned if an infinite loop is detected.
 // Otherwise, the first ancestor found will be returned.
-func (n *NodeMap) findAncestor(search string, opts ...NodeMapFuncOpts) (*NodeMap, error) {
+func (n *NodeMap) findAncestor(opts ...NodeMapFuncOpts) (*NodeMap, error) {
 	config := WithNodeMapOptions(opts...)
 
-	if config.searchByName == "" && config.searchByType == "" {
-		config.searchByName = search
+	search, err := resolveSearchCriteria(config)
+	if err != nil {
+		return nil, err
 	}
 
 	seen := make(map[string]struct{})
@@ -173,4 +175,15 @@ func NodeMapOptSearchByType(nodeType string) NodeMapFuncOpts {
 
 		return *options
 	}
+}
+
+func resolveSearchCriteria(config NodeMapOptions) (string, error) {
+	if config.searchByName != "" {
+		return config.searchByName, nil
+	}
+	if config.searchByType != "" {
+		return config.searchByType, nil
+	}
+
+	return "", fmt.Errorf("search by either name or type is required")
 }

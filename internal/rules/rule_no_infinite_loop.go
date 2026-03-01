@@ -1,6 +1,8 @@
 package rules
 
 import (
+	"strings"
+
 	"github.com/code-gorilla-au/n8n-lint/internal/n8n"
 )
 
@@ -22,15 +24,35 @@ var ruleNoInfiniteLoop = Rule{
 			Report:          config.NoInfiniteLoop.ReportLevel(),
 		}
 
+		allowedLoops := finder.FindBy(func(node *n8n.NodeMap) bool {
+			return strings.Contains(strings.ToLower(node.Node.Type), strings.ToLower("splitInBatches"))
+		})
+
 		circularNodes := finder.FindBy(func(node *n8n.NodeMap) bool {
-			_, err := finder.FindAncestor(node.Node.Name, node.Node.Name)
-			return err == nil
+			infiniteNode, err := finder.FindAncestor(node.Node.Name, node.Node.Name)
+			if err != nil {
+				return false
+			}
+
+			if len(allowedLoops) == 0 {
+				return true
+			}
+
+			for _, allowedLoop := range allowedLoops {
+				_, err := finder.FindAncestor(allowedLoop.Node.Name, infiniteNode.Node.Name)
+
+				return err != nil
+			}
+
+			return true
 		})
 
 		for _, circularNode := range circularNodes {
 
 			outcome.Nodes = append(outcome.Nodes, circularNode.Node)
 		}
+
+		outcome.Report = evaluateReportLevel(config.NoDeadEnds, outcome)
 
 		return outcome, nil
 	},

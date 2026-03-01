@@ -18,54 +18,51 @@ func NewConsoleReporter() *ConsoleReporter {
 }
 
 // Print processes a list of FileReport objects, printing summaries and outcomes with formatted terminal output.
-func (r *ConsoleReporter) Print(reports []FileReport) {
-	for _, report := range reports {
-		if report.TotalWarns > 0 || report.TotalErrors > 0 {
+func (r *ConsoleReporter) Print(summary Summary) {
+	for _, report := range summary.Reports {
+
+		if shouldReport(report) {
 			printFileReport(report)
 		}
 
 	}
 
-	if len(reports) > 0 {
-		printSummaryTable(reports)
+	if summary.ShouldReport() {
+		printSummaryTable(summary)
 	}
 }
 
-func printSummaryTable(reports []FileReport) {
+// printSummaryTable prints a formatted summary table of file reports, including error and warning counts, to the terminal.
+func printSummaryTable(summary Summary) {
 	log.Println("")
 	log.Println(chalk.BrightBlue(chalk.Bold("SUMMARY")))
 	log.Printf("%s\n", reportLineBreak(rules.ReportOff))
 
-	// Find the maximum length of the file names for padding
-	maxFileLen := 4 // length of "File"
-	for _, report := range reports {
-		if len(report.FileName) > maxFileLen {
-			maxFileLen = len(report.FileName)
-		}
-	}
-
 	// Header
-	fileHeader := "File"
-	errorHeader := "Errors"
-	warnHeader := "Warnings"
+	fileHeader := chalk.Bold("File")
+	errorHeader := chalk.Bold("Errors")
+	warnHeader := chalk.Bold("Warnings")
+
+	maxFileLen := terminalLength() - 12
 
 	header := fmt.Sprintf("%-*s | %-6s | %-8s", maxFileLen, fileHeader, errorHeader, warnHeader)
 	log.Println(header)
 	log.Printf("%s\n", reportLineBreak(rules.ReportOff))
 
-	totalErrors := 0
-	totalWarns := 0
+	totalErrors := summary.TotalErrors()
+	totalWarns := summary.TotalWarns()
 
-	for _, report := range reports {
-		log.Printf("%-*s | %-6d | %-8d\n", maxFileLen, report.FileName, report.TotalErrors, report.TotalWarns)
-		totalErrors += report.TotalErrors
-		totalWarns += report.TotalWarns
+	maxLineItemsLen := terminalLength() - 20
+
+	for _, report := range summary.Reports {
+		log.Printf("%-*s | %-6d | %-8d\n", maxLineItemsLen, report.FileName, report.TotalErrors, report.TotalWarns)
 	}
 
 	log.Printf("%s\n", reportLineBreak(rules.ReportOff))
-	log.Printf("%-*s | %-6d | %-8d\n", maxFileLen, "Total", totalErrors, totalWarns)
+	log.Printf("%-*s | %-6d | %-8d\n", maxFileLen, chalk.Bold("Total"), totalErrors, totalWarns)
 }
 
+// printFileReport prints a detailed report with summaries and outcomes for a given FileReport.
 func printFileReport(report FileReport) {
 	log.Printf("%s\n", reportLineBreak(rules.ReportOff))
 	printReportSummary(report)

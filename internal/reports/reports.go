@@ -17,9 +17,44 @@ func (s *Summary) Add(outcomes []rules.EvaluationOutcome) {
 	s.Reports = append(s.Reports, generateReport(outcomes))
 }
 
+// ShouldReport determines whether the summary contains any errors or warnings that should be reported.
+func (s *Summary) ShouldReport() bool {
+	totalErrors := 0
+	totalWarns := 0
+	for _, report := range s.Reports {
+		totalErrors += report.TotalErrors
+		totalWarns += report.TotalWarns
+	}
+	return totalErrors > 0 || totalWarns > 0
+}
+
+func (s *Summary) TotalErrors() int {
+	totalErrors := 0
+
+	for _, report := range s.Reports {
+		totalErrors += report.TotalErrors
+	}
+
+	return totalErrors
+}
+
+func (s *Summary) TotalWarns() int {
+	totalWarns := 0
+
+	for _, report := range s.Reports {
+		totalWarns += report.TotalWarns
+	}
+
+	return totalWarns
+}
+
 // Print outputs the summary reports by invoking the Print method of the associated Reporter instance.
 func (s *Summary) Print() {
-	s.Reporter.Print(s.Reports)
+	s.Reporter.Print(*s)
+}
+
+func shouldReport(file FileReport) bool {
+	return file.TotalErrors > 0 || file.TotalWarns > 0
 }
 
 // generateReport updates the FileReport with provided EvaluationOutcome data and computes totals for errors and warnings.

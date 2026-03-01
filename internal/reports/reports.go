@@ -1,32 +1,48 @@
-package rules
+package reports
 
 import (
+	"fmt"
 	"log"
 	"math"
 	"os"
 	"strings"
 
 	"github.com/code-gorilla-au/n8n-lint/internal/chalk"
+	"github.com/code-gorilla-au/n8n-lint/internal/rules"
 	"golang.org/x/term"
 )
 
-// NewReport generates a FileReport by evaluating a list of EvaluationOutcome and computing error and warning totals.
-func NewReport(outcomes []EvaluationOutcome) FileReport {
-	var rep FileReport
-
-	return rep.GenerateReport(outcomes)
+func NewSummary() Summary {
+	return Summary{}
 }
 
-// GenerateReport updates the FileReport with provided EvaluationOutcome data and computes totals for errors and warnings.
-func (f FileReport) GenerateReport(outcomes []EvaluationOutcome) FileReport {
+func (s *Summary) Add(outcomes []rules.EvaluationOutcome) {
+	s.Reports = append(s.Reports, generateReport(outcomes))
+	fmt.Println("Adding report with", len(outcomes), "outcomes")
+}
+
+func (s *Summary) Print() {
+
+	for _, report := range s.Reports {
+		log.Printf("%s\n", reportLineBreak(rules.ReportOff))
+		printReportSummary(report)
+		log.Printf("%s\n", reportLineBreak(rules.ReportOff))
+		printOutcomes(report.Outcomes)
+	}
+}
+
+// generateReport updates the FileReport with provided EvaluationOutcome data and computes totals for errors and warnings.
+func generateReport(outcomes []rules.EvaluationOutcome) FileReport {
+	var f FileReport
+
 	f.Outcomes = outcomes
 
-	totalErrors := f.filterOutcomeBy(func(outcome EvaluationOutcome) bool {
-		return outcome.Report == ReportError
+	totalErrors := filterOutcomeBy(f, func(outcome rules.EvaluationOutcome) bool {
+		return outcome.Report == rules.ReportError
 	})
 
-	totalWarns := f.filterOutcomeBy(func(outcome EvaluationOutcome) bool {
-		return outcome.Report == ReportWarn
+	totalWarns := filterOutcomeBy(f, func(outcome rules.EvaluationOutcome) bool {
+		return outcome.Report == rules.ReportWarn
 	})
 
 	f.TotalErrors = len(totalErrors)
@@ -37,18 +53,9 @@ func (f FileReport) GenerateReport(outcomes []EvaluationOutcome) FileReport {
 
 }
 
-// Print outputs the report data contained in the FileReport, specifically the outcomes array, to the terminal.
-func (f FileReport) Print() {
-	log.Printf("%s\n", reportLineBreak(ReportOff))
-	printReportSummary(f)
-	log.Printf("%s\n", reportLineBreak(ReportOff))
-	printOutcomes(f.Outcomes)
-
-}
-
 // filterOutcomeBy filters the Outcomes of the FileReport based on the provided predicate function and returns the filtered results.
-func (f FileReport) filterOutcomeBy(fn func(outcome EvaluationOutcome) bool) []EvaluationOutcome {
-	result := make([]EvaluationOutcome, 0)
+func filterOutcomeBy(f FileReport, fn func(outcome rules.EvaluationOutcome) bool) []rules.EvaluationOutcome {
+	result := make([]rules.EvaluationOutcome, 0)
 
 	for _, outcome := range f.Outcomes {
 		if fn(outcome) {
@@ -60,7 +67,7 @@ func (f FileReport) filterOutcomeBy(fn func(outcome EvaluationOutcome) bool) []E
 }
 
 // printOutcomes outputs a formatted report for each EvaluationOutcome in the provided slice, grouped and separated by report level.
-func printOutcomes(outcomes []EvaluationOutcome) {
+func printOutcomes(outcomes []rules.EvaluationOutcome) {
 	for _, outcome := range outcomes {
 		printReport(outcome)
 	}
@@ -73,8 +80,8 @@ func printReportSummary(report FileReport) {
 }
 
 // printReport outputs a formatted report for the given EvaluationOutcome, including rule details and associated nodes.
-func printReport(outcome EvaluationOutcome) {
-	if outcome.Report == ReportOff {
+func printReport(outcome rules.EvaluationOutcome) {
+	if outcome.Report == rules.ReportOff {
 		return
 	}
 
@@ -99,15 +106,15 @@ func printReport(outcome EvaluationOutcome) {
 	log.Println("")
 }
 
-// reportLineBreak generates a colored line as a string based on the provided report level for terminal output separation.
-func reportLineBreak(report ReportLevel) string {
+// reportLineBreak generates a coloured line as a string based on the provided report level for terminal output separation.
+func reportLineBreak(report rules.ReportLevel) string {
 
 	text := strings.Repeat("━", terminalLength())
 
 	switch report {
-	case ReportError:
+	case rules.ReportError:
 		return chalk.Red(text)
-	case ReportWarn:
+	case rules.ReportWarn:
 		return chalk.Yellow(text)
 	default:
 		return chalk.Gray(text)
@@ -132,11 +139,11 @@ func terminalLength() int {
 }
 
 // reportLevel formats the report level as a colored string based on its severity or defaults to uppercase gray text.
-func reportLevel(report ReportLevel) string {
+func reportLevel(report rules.ReportLevel) string {
 	switch report {
-	case ReportError:
+	case rules.ReportError:
 		return chalk.Red("ERROR")
-	case ReportWarn:
+	case rules.ReportWarn:
 		return chalk.Yellow("WARN")
 	default:
 		return chalk.Gray(strings.ToUpper(report))

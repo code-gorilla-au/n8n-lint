@@ -1,30 +1,21 @@
-package rules
+package engine
 
 import (
 	"errors"
 	"sync"
 
 	"github.com/code-gorilla-au/n8n-lint/internal/n8n"
+	"github.com/code-gorilla-au/n8n-lint/internal/reports"
+	"github.com/code-gorilla-au/n8n-lint/internal/rules"
 )
 
 const numWorkers = 4
 
-type WorkerOrchestrator struct {
-	NumberWorkers int
-	ErrChan       chan error
-	ResultChan    chan FileReport
-	Jobs          chan n8n.Workflow
-	FileReports   []FileReport
-	Errors        []error
-	Workers       []Worker
-	WG            *sync.WaitGroup
-}
-
-// NewOrchestrator initializes and returns a new WorkerOrchestrator instance configured with the given Configuration.
-func NewOrchestrator(config Configuration) *WorkerOrchestrator {
+// NewOrchestrator initializes and returns a new Orchestrator instance configured with the given Configuration.
+func NewOrchestrator(config rules.Configuration) *Orchestrator {
 	workers := make([]Worker, numWorkers)
 	errChan := make(chan error, numWorkers)
-	resultsChan := make(chan FileReport, numWorkers)
+	resultsChan := make(chan []rules.EvaluationOutcome, numWorkers)
 	jobs := make(chan n8n.Workflow, numWorkers)
 
 	wg := &sync.WaitGroup{}
@@ -36,32 +27,33 @@ func NewOrchestrator(config Configuration) *WorkerOrchestrator {
 			ResultChan: resultsChan,
 			JobChan:    jobs,
 			WG:         wg,
-			engine:     NewRulesEngine(config),
+			engine:     rules.NewRulesEngine(config),
 		}
 	}
 
-	return &WorkerOrchestrator{
+	return &Orchestrator{
 		NumberWorkers: numWorkers,
 		ErrChan:       errChan,
 		ResultChan:    resultsChan,
 		Jobs:          jobs,
 		Workers:       workers,
 		WG:            wg,
+		Summary:       reports.NewSummary(),
 	}
 }
 
-// Run initiates workflow processing, collects results, and aggregates errors; returns processed file reports and errors.
-func (o *WorkerOrchestrator) Run(workflows []n8n.Workflow) ([]FileReport, error) {
+// Run initiates workflow processing, collects results, and aggregates errors.
+func (o *Orchestrator) Run(workflows []n8n.Workflow) (reports.Summary, error) {
 	go o.collectResults()
 	o.start()
 	o.load(workflows)
 	o.wait()
 
-	return o.FileReports, errors.Join(o.Errors...)
+	return o.Summary, errors.Join(o.Errors...)
 }
 
 // start launches all workers in the orchestrator and increments the WaitGroup counter for each worker.
-func (o *WorkerOrchestrator) start() {
+func (o *Orchestrator) start() {
 	for _, w := range o.Workers {
 		go w.Run()
 	}
@@ -69,7 +61,7 @@ func (o *WorkerOrchestrator) start() {
 }
 
 // load inserts a list of workflows into the orchestrator's job queue and closes the queue once all workflows are added.
-func (o *WorkerOrchestrator) load(jobs []n8n.Workflow) {
+func (o *Orchestrator) load(jobs []n8n.Workflow) {
 	o.WG.Add(1)
 	for _, job := range jobs {
 		o.Jobs <- job
@@ -81,7 +73,7 @@ func (o *WorkerOrchestrator) load(jobs []n8n.Workflow) {
 }
 
 // wait blocks until all workers have finished processing, then closes the result and error channels.
-func (o *WorkerOrchestrator) wait() {
+func (o *Orchestrator) wait() {
 	o.WG.Wait()
 
 	close(o.ErrChan)
@@ -89,15 +81,15 @@ func (o *WorkerOrchestrator) wait() {
 }
 
 // collectResults collects all FileReport objects from the ResultChan, aggregates errors from the ErrChan, and returns them.
-func (o *WorkerOrchestrator) collectResults() {
+func (o *Orchestrator) collectResults() {
 	for {
 		select {
-		case report, ok := <-o.ResultChan:
+		case outcomes, ok := <-o.ResultChan:
 			if !ok {
 				break
 			}
 
-			o.FileReports = append(o.FileReports, report)
+			o.Summary.Add(outcomes)
 
 		case err, ok := <-o.ErrChan:
 			if !ok {
@@ -109,16 +101,6 @@ func (o *WorkerOrchestrator) collectResults() {
 	}
 }
 
-// Worker represents a unit responsible for processing workflows, reporting errors, and generating file evaluation results.
-type Worker struct {
-	ID         int
-	ErrChan    chan error
-	ResultChan chan FileReport
-	JobChan    chan n8n.Workflow
-	WG         *sync.WaitGroup
-	engine     Engine
-}
-
 // Run processes jobs from the JobChan, executes them using the engine, and sends results or errors to respective channels.
 func (w *Worker) Run() {
 	w.WG.Add(1)
@@ -126,7 +108,7 @@ func (w *Worker) Run() {
 	for job := range w.JobChan {
 		w.WG.Add(1)
 
-		report, err := w.engine.Run(job)
+		outcomes, err := w.engine.Run(job)
 		if err != nil {
 
 			w.ErrChan <- err
@@ -134,7 +116,7 @@ func (w *Worker) Run() {
 			continue
 		}
 
-		w.ResultChan <- report
+		w.ResultChan <- outcomes
 		w.WG.Done()
 	}
 

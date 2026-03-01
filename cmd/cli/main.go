@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/code-gorilla-au/n8n-lint/internal/chalk"
+	"github.com/code-gorilla-au/n8n-lint/internal/engine"
 	"github.com/code-gorilla-au/n8n-lint/internal/n8n"
 	"github.com/code-gorilla-au/n8n-lint/internal/rules"
 	"github.com/urfave/cli/v3"
@@ -55,13 +56,11 @@ func main() {
 						return err
 					}
 
-					orchestrator := rules.NewOrchestrator(config)
+					orchestrator := engine.NewOrchestrator(config)
 
 					reports, err := orchestrator.Run(workflows)
 
-					for _, report := range reports {
-						report.Print()
-					}
+					reports.Print()
 
 					return nil
 				},

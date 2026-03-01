@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"math"
 	"os"
 	"strings"
 	"testing"
@@ -148,6 +149,32 @@ func TestPrintFileReport(t *testing.T) {
 
 			output := buf.String()
 			odize.AssertTrue(t, !strings.Contains(output, "Off Rule"))
+		}).
+		Run()
+	odize.AssertNoError(t, err)
+}
+
+func TestConvertUintptrToInt(t *testing.T) {
+	group := odize.NewGroup(t, nil)
+
+	err := group.
+		Test("should return int for valid uintptr", func(t *testing.T) {
+			val := uintptr(1)
+			got, err := convertUintptrToInt(val)
+			odize.AssertNoError(t, err)
+			odize.AssertEqual(t, 1, got)
+		}).
+		Test("should return error for uintptr too large for int", func(t *testing.T) {
+			// On 64-bit systems math.MaxInt is 2^63 - 1, uintptr is 2^64 - 1
+			// On 32-bit systems math.MaxInt is 2^31 - 1, uintptr is 2^32 - 1
+			// So uintptr can always be larger than math.MaxInt if we use a large enough value
+			val := uintptr(math.MaxInt) + 1
+			if val > uintptr(math.MaxInt) {
+				_, err := convertUintptrToInt(val)
+				odize.AssertError(t, err)
+			} else {
+				t.Skip("uintptr cannot be larger than math.MaxInt on this architecture")
+			}
 		}).
 		Run()
 	odize.AssertNoError(t, err)

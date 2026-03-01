@@ -124,15 +124,20 @@ func reportLineBreak() string {
 // terminalLength calculates the terminal width considering halving for better layout and defaults to 80 on error or non-terminal.
 func terminalLength() int {
 
-	fd := int(os.Stdout.Fd())
+	const defaultWidth = 80
+
+	fd, err := convertUintptrToInt(os.Stdout.Fd())
+	if err != nil {
+		return defaultWidth
+	}
 
 	if !term.IsTerminal(fd) {
-		return 80
+		return defaultWidth
 	}
 
 	width, _, err := term.GetSize(fd)
 	if err != nil {
-		return 80
+		return defaultWidth
 	}
 
 	return width - int(math.Abs(float64(width)*0.4))
@@ -167,4 +172,11 @@ func chunkStringsByLength(s string, chunkSize int) []string {
 
 	chunks = append(chunks, chunk)
 	return chunks
+}
+
+func convertUintptrToInt(u uintptr) (int, error) {
+	if u > math.MaxInt {
+		return 0, fmt.Errorf("uintptr value %d is too large for int", u)
+	}
+	return int(u), nil
 }

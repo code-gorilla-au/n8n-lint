@@ -57,5 +57,3 @@ var ruleNoInfiniteLoop = Rule{
 		return outcome, nil
 	},
 }
-
-var defaultAllowedInfiniteLoop = []string{"n8n-nodes-base.splitInBatches"}

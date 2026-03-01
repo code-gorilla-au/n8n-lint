@@ -33,7 +33,7 @@ func (r *ConsoleReporter) Print(summary Summary) {
 func printSummaryTable(summary Summary) {
 	log.Println("")
 	log.Println(chalk.BrightBlue(chalk.Bold("SUMMARY")))
-	log.Printf("%s\n", reportLineBreak(rules.ReportOff))
+	log.Printf("%s\n", reportLineBreak())
 
 	// Header
 	fileHeader := chalk.Bold("File")
@@ -44,7 +44,7 @@ func printSummaryTable(summary Summary) {
 
 	header := fmt.Sprintf("%-*s | %-6s | %-8s", maxFileLen, fileHeader, errorHeader, warnHeader)
 	log.Println(header)
-	log.Printf("%s\n", reportLineBreak(rules.ReportOff))
+	log.Printf("%s\n", reportLineBreak())
 
 	totalErrors := summary.TotalErrors()
 	totalWarns := summary.TotalWarns()
@@ -55,17 +55,17 @@ func printSummaryTable(summary Summary) {
 		log.Printf("%-*s | %-6d | %-8d\n", maxLineItemsLen, report.FileName, report.TotalErrors, report.TotalWarns)
 	}
 
-	log.Printf("%s\n", reportLineBreak(rules.ReportOff))
+	log.Printf("%s\n", reportLineBreak())
 	log.Printf("%-*s | %-6d | %-8d\n", maxFileLen, chalk.Bold("Total"), totalErrors, totalWarns)
-	log.Printf("%s\n", reportLineBreak(rules.ReportOff))
+	log.Printf("%s\n", reportLineBreak())
 	log.Println("")
 }
 
 // printFileReport prints a detailed report with summaries and outcomes for a given FileReport.
 func printFileReport(report FileReport) {
-	log.Printf("%s\n", reportLineBreak(rules.ReportOff))
+	log.Printf("%s\n", reportLineBreak())
 	printReportSummary(report)
-	log.Printf("%s\n", reportLineBreak(rules.ReportOff))
+	log.Printf("%s\n", reportLineBreak())
 	printOutcomes(report.Outcomes)
 }
 
@@ -116,18 +116,9 @@ func printOutcome(outcome rules.EvaluationOutcome) {
 }
 
 // reportLineBreak generates a coloured line as a string based on the provided report level for terminal output separation.
-func reportLineBreak(report rules.ReportLevel) string {
-
+func reportLineBreak() string {
 	text := strings.Repeat("━", terminalLength())
-
-	switch report {
-	case rules.ReportError:
-		return chalk.Red(text)
-	case rules.ReportWarn:
-		return chalk.Yellow(text)
-	default:
-		return chalk.Gray(text)
-	}
+	return chalk.Gray(text)
 }
 
 // terminalLength calculates the terminal width considering halving for better layout and defaults to 80 on error or non-terminal.

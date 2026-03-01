@@ -3,7 +3,8 @@ package reports
 import "github.com/code-gorilla-au/n8n-lint/internal/rules"
 
 type Summary struct {
-	Reports []FileReport
+	Reports  []FileReport
+	Reporter Reporter
 }
 
 // FileReport represents a summary report containing evaluation outcomes and counts of errors and warnings.
@@ -19,3 +20,8 @@ type FileReport struct {
 	// TotalWarns specifies the total count of evaluation outcomes that are classified as warnings.
 	TotalWarns int `json:"total_warns"`
 }
+
+type ConsoleReporter struct {
+}
+
+var _ Reporter = (*ConsoleReporter)(nil)

@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/code-gorilla-au/n8n-lint/internal/n8n"
 	"github.com/code-gorilla-au/n8n-lint/internal/rules"
 	"github.com/code-gorilla-au/odize"
 )
@@ -69,6 +70,81 @@ func TestConsoleReporter_Print(t *testing.T) {
 			odize.AssertTrue(t, strings.Contains(output, "file1.json | 1      | 2"))
 			odize.AssertTrue(t, strings.Contains(output, "file2.json | 0      | 1"))
 			odize.AssertTrue(t, strings.Contains(output, "Total      | 1      | 3"))
+		}).
+		Run()
+	odize.AssertNoError(t, err)
+}
+
+func TestPrintFileReport(t *testing.T) {
+	group := odize.NewGroup(t, nil)
+
+	var buf bytes.Buffer
+	log.SetOutput(&buf)
+	defer log.SetOutput(os.Stderr)
+
+	group.BeforeEach(func() {
+		buf.Reset()
+	})
+
+	err := group.
+		Test("should print file report with errors and warnings", func(t *testing.T) {
+			report := FileReport{
+				FileName:    "test_file.json",
+				TotalErrors: 1,
+				TotalWarns:  1,
+				Outcomes: []rules.EvaluationOutcome{
+					{
+						File:            "test_file.json",
+						RuleName:        "Test Error Rule",
+						RuleDescription: "This is a test error description.",
+						Report:          rules.ReportError,
+						Nodes: []n8n.Node{
+							{Name: "Node1"},
+						},
+					},
+					{
+						File:            "test_file.json",
+						RuleName:        "Test Warn Rule",
+						RuleDescription: "This is a test warn description.",
+						Report:          rules.ReportWarn,
+					},
+				},
+			}
+
+			printFileReport(report)
+
+			output := buf.String()
+
+			// Check file summary
+			odize.AssertTrue(t, strings.Contains(output, "File: test_file.json"))
+			odize.AssertTrue(t, strings.Contains(output, "Errors: 1"))
+			odize.AssertTrue(t, strings.Contains(output, "Warnings: 1"))
+
+			// Check Error Outcome
+			odize.AssertTrue(t, strings.Contains(output, "[ERROR] Test Error Rule:"))
+			odize.AssertTrue(t, strings.Contains(output, "This is a test error description."))
+			odize.AssertTrue(t, strings.Contains(output, "Nodes:"))
+			odize.AssertTrue(t, strings.Contains(output, "- Node1"))
+
+			// Check Warn Outcome
+			odize.AssertTrue(t, strings.Contains(output, "[WARN] Test Warn Rule:"))
+			odize.AssertTrue(t, strings.Contains(output, "This is a test warn description."))
+		}).
+		Test("should skip outcome if report level is OFF", func(t *testing.T) {
+			report := FileReport{
+				FileName: "off_file.json",
+				Outcomes: []rules.EvaluationOutcome{
+					{
+						RuleName: "Off Rule",
+						Report:   rules.ReportOff,
+					},
+				},
+			}
+
+			printFileReport(report)
+
+			output := buf.String()
+			odize.AssertTrue(t, !strings.Contains(output, "Off Rule"))
 		}).
 		Run()
 	odize.AssertNoError(t, err)

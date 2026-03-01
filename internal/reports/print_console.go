@@ -1,6 +1,7 @@
 package reports
 
 import (
+	"fmt"
 	"log"
 	"math"
 	"os"
@@ -19,11 +20,58 @@ func NewConsoleReporter() *ConsoleReporter {
 // Print processes a list of FileReport objects, printing summaries and outcomes with formatted terminal output.
 func (r *ConsoleReporter) Print(reports []FileReport) {
 	for _, report := range reports {
-		log.Printf("%s\n", reportLineBreak(rules.ReportOff))
-		printReportSummary(report)
-		log.Printf("%s\n", reportLineBreak(rules.ReportOff))
-		printOutcomes(report.Outcomes)
+		if len(report.Outcomes) == 0 {
+			continue
+		}
+
+		printFileReport(report)
 	}
+
+	if len(reports) > 0 {
+		printSummaryTable(reports)
+	}
+}
+
+func printSummaryTable(reports []FileReport) {
+	log.Println("")
+	log.Println(chalk.Blue("SUMMARY"))
+	log.Printf("%s\n", reportLineBreak(rules.ReportOff))
+
+	// Find the maximum length of the file names for padding
+	maxFileLen := 4 // length of "File"
+	for _, report := range reports {
+		if len(report.FileName) > maxFileLen {
+			maxFileLen = len(report.FileName)
+		}
+	}
+
+	// Header
+	fileHeader := "File"
+	errorHeader := "Errors"
+	warnHeader := "Warnings"
+
+	header := fmt.Sprintf("%-*s | %-6s | %-8s", maxFileLen, fileHeader, errorHeader, warnHeader)
+	log.Println(header)
+	log.Printf("%s\n", reportLineBreak(rules.ReportOff))
+
+	totalErrors := 0
+	totalWarns := 0
+
+	for _, report := range reports {
+		log.Printf("%-*s | %-6d | %-8d\n", maxFileLen, report.FileName, report.TotalErrors, report.TotalWarns)
+		totalErrors += report.TotalErrors
+		totalWarns += report.TotalWarns
+	}
+
+	log.Printf("%s\n", reportLineBreak(rules.ReportOff))
+	log.Printf("%-*s | %-6d | %-8d\n", maxFileLen, "Total", totalErrors, totalWarns)
+}
+
+func printFileReport(report FileReport) {
+	log.Printf("%s\n", reportLineBreak(rules.ReportOff))
+	printReportSummary(report)
+	log.Printf("%s\n", reportLineBreak(rules.ReportOff))
+	printOutcomes(report.Outcomes)
 }
 
 // printReportSummary outputs a coloured summary of the total errors and warnings contained in the provided FileReport.
@@ -32,8 +80,15 @@ func printReportSummary(report FileReport) {
 	log.Printf("%s: %d  |  %s: %d\n", chalk.Red("Errors"), report.TotalErrors, chalk.Yellow("Warnings"), report.TotalWarns)
 }
 
-// printReport outputs a formatted report for the given EvaluationOutcome, including rule details and associated nodes.
-func printReport(outcome rules.EvaluationOutcome) {
+// printOutcomes outputs a formatted report for each EvaluationOutcome in the provided slice, grouped and separated by report level.
+func printOutcomes(outcomes []rules.EvaluationOutcome) {
+	for _, outcome := range outcomes {
+		printOutcome(outcome)
+	}
+}
+
+// printOutcome outputs a formatted report for the given EvaluationOutcome, including rule details and associated nodes.
+func printOutcome(outcome rules.EvaluationOutcome) {
 	if outcome.Report == rules.ReportOff {
 		return
 	}
@@ -103,6 +158,7 @@ func reportLevel(report rules.ReportLevel) string {
 	}
 }
 
+// chunkStringsByLength splits a string into chunks of a specified maximum length without breaking words.
 func chunkStringsByLength(s string, chunkSize int) []string {
 	var chunks []string
 	tokens := strings.Split(s, " ")

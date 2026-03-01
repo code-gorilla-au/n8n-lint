@@ -56,10 +56,3 @@ func filterOutcomeBy(f FileReport, fn func(outcome rules.EvaluationOutcome) bool
 
 	return result
 }
-
-// printOutcomes outputs a formatted report for each EvaluationOutcome in the provided slice, grouped and separated by report level.
-func printOutcomes(outcomes []rules.EvaluationOutcome) {
-	for _, outcome := range outcomes {
-		printReport(outcome)
-	}
-}

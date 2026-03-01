@@ -2,6 +2,7 @@ package n8n
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 )
 
@@ -177,6 +178,7 @@ func NodeMapOptSearchByType(nodeType string) NodeMapFuncOpts {
 	}
 }
 
+// resolveSearchCriteria determines the search criteria based on the NodeMapOptions configuration.
 func resolveSearchCriteria(config NodeMapOptions) (string, error) {
 	if config.searchByName != "" {
 		return config.searchByName, nil
@@ -185,5 +187,5 @@ func resolveSearchCriteria(config NodeMapOptions) (string, error) {
 		return config.searchByType, nil
 	}
 
-	return "", fmt.Errorf("search by either name or type is required")
+	return "", errors.New("search by either name or type is required")
 }

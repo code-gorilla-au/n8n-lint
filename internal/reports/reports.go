@@ -1,7 +1,6 @@
 package reports
 
 import (
-	"fmt"
 	"log"
 	"math"
 	"os"
@@ -18,7 +17,6 @@ func NewSummary() Summary {
 
 func (s *Summary) Add(outcomes []rules.EvaluationOutcome) {
 	s.Reports = append(s.Reports, generateReport(outcomes))
-	fmt.Println("Adding report with", len(outcomes), "outcomes")
 }
 
 func (s *Summary) Print() {

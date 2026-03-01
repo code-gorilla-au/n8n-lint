@@ -20,11 +20,10 @@ func NewConsoleReporter() *ConsoleReporter {
 // Print processes a list of FileReport objects, printing summaries and outcomes with formatted terminal output.
 func (r *ConsoleReporter) Print(reports []FileReport) {
 	for _, report := range reports {
-		if len(report.Outcomes) == 0 {
-			continue
+		if report.TotalWarns > 0 || report.TotalErrors > 0 {
+			printFileReport(report)
 		}
 
-		printFileReport(report)
 	}
 
 	if len(reports) > 0 {
@@ -34,7 +33,7 @@ func (r *ConsoleReporter) Print(reports []FileReport) {
 
 func printSummaryTable(reports []FileReport) {
 	log.Println("")
-	log.Println(chalk.Blue("SUMMARY"))
+	log.Println(chalk.BrightBlue(chalk.Bold("SUMMARY")))
 	log.Printf("%s\n", reportLineBreak(rules.ReportOff))
 
 	// Find the maximum length of the file names for padding
@@ -76,8 +75,14 @@ func printFileReport(report FileReport) {
 
 // printReportSummary outputs a coloured summary of the total errors and warnings contained in the provided FileReport.
 func printReportSummary(report FileReport) {
-	log.Printf("%s: %s\n", chalk.Blue("File"), report.FileName)
-	log.Printf("%s: %d  |  %s: %d\n", chalk.Red("Errors"), report.TotalErrors, chalk.Yellow("Warnings"), report.TotalWarns)
+	log.Printf("%s: %s\n", chalk.BrightBlue(chalk.Bold("File")), report.FileName)
+	log.Printf(
+		"%s: %d  |  %s: %d\n",
+		chalk.BrightRed(chalk.Bold("Errors")),
+		report.TotalErrors,
+		chalk.Yellow(chalk.Bold("Warnings")),
+		report.TotalWarns,
+	)
 }
 
 // printOutcomes outputs a formatted report for each EvaluationOutcome in the provided slice, grouped and separated by report level.
@@ -95,7 +100,7 @@ func printOutcome(outcome rules.EvaluationOutcome) {
 
 	level := reportLevel(outcome.Report)
 
-	log.Printf("[%s] %s:\n", level, chalk.Blue(outcome.RuleName))
+	log.Printf("[%s] %s:\n", chalk.Bold(level), chalk.Bold(chalk.BrightBlue(outcome.RuleName)))
 
 	descriptionChunks := chunkStringsByLength(outcome.RuleDescription, terminalLength())
 	for _, chunk := range descriptionChunks {
@@ -104,7 +109,7 @@ func printOutcome(outcome rules.EvaluationOutcome) {
 
 	if len(outcome.Nodes) > 0 {
 		log.Println("")
-		log.Println(chalk.Blue("Nodes:"))
+		log.Println(chalk.BrightBlue(chalk.Bold("Nodes:")))
 	}
 
 	for _, node := range outcome.Nodes {

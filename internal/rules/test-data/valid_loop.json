@@ -1,0 +1,169 @@
+{
+	"name": "simple loop",
+	"nodes": [
+		{
+			"parameters": {},
+			"type": "n8n-nodes-base.manualTrigger",
+			"typeVersion": 1,
+			"position": [
+				0,
+				0
+			],
+			"id": "f12e7073-3184-43cc-8764-b1f3f51cca2e",
+			"name": "When clicking ‘Execute workflow’"
+		},
+		{
+			"parameters": {
+				"assignments": {
+					"assignments": [
+						{
+							"id": "1b804ce4-f888-4276-902e-8e1730c2abd5",
+							"name": "hello",
+							"value": "world",
+							"type": "string"
+						}
+					]
+				},
+				"options": {}
+			},
+			"type": "n8n-nodes-base.set",
+			"typeVersion": 3.4,
+			"position": [
+				208,
+				0
+			],
+			"id": "2d500e5a-44ee-46c8-85e5-a5af022e0c23",
+			"name": "Edit Fields"
+		},
+		{
+			"parameters": {
+				"conditions": {
+					"options": {
+						"caseSensitive": true,
+						"leftValue": "",
+						"typeValidation": "strict",
+						"version": 3
+					},
+					"conditions": [
+						{
+							"id": "b6684dc6-2388-48d9-ba10-d9ab7e58290e",
+							"leftValue": "={{ $json.hello }}",
+							"rightValue": "world",
+							"operator": {
+								"type": "string",
+								"operation": "equals"
+							}
+						}
+					],
+					"combinator": "and"
+				},
+				"options": {}
+			},
+			"type": "n8n-nodes-base.if",
+			"typeVersion": 2.3,
+			"position": [
+				768,
+				64
+			],
+			"id": "d3dee2a2-aeba-4d55-b0a2-4fc8ee521fcc",
+			"name": "If"
+		},
+		{
+			"parameters": {},
+			"type": "n8n-nodes-base.noOp",
+			"typeVersion": 1,
+			"position": [
+				1152,
+				-112
+			],
+			"id": "7243d2f8-1af9-4efc-961c-ba095b1014fd",
+			"name": "DONE"
+		},
+		{
+			"parameters": {
+				"options": {}
+			},
+			"type": "n8n-nodes-base.splitInBatches",
+			"typeVersion": 3,
+			"position": [
+				416,
+				16
+			],
+			"id": "0d99f026-ccfc-4cd6-9b80-f6acf8856470",
+			"name": "Loop Over Items"
+		}
+	],
+	"pinData": {},
+	"connections": {
+		"When clicking ‘Execute workflow’": {
+			"main": [
+				[
+					{
+						"node": "Edit Fields",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"Edit Fields": {
+			"main": [
+				[
+					{
+						"node": "Loop Over Items",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"If": {
+			"main": [
+				[
+					{
+						"node": "DONE",
+						"type": "main",
+						"index": 0
+					}
+				],
+				[
+					{
+						"node": "Loop Over Items",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"Loop Over Items": {
+			"main": [
+				[
+					{
+						"node": "DONE",
+						"type": "main",
+						"index": 0
+					}
+				],
+				[
+					{
+						"node": "If",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		}
+	},
+	"active": false,
+	"settings": {
+		"executionOrder": "v1",
+		"binaryMode": "separate",
+		"availableInMCP": false
+	},
+	"versionId": "93224a25-6fc8-464b-a050-01bea5fb9b71",
+	"meta": {
+		"instanceId": "757dc90212a91dc1c87095a6b6ec75eb430ba39b69f22ad5db4a24f9637fa66e"
+	},
+	"id": "9XCmRWtTxCar860N",
+	"tags": []
+}

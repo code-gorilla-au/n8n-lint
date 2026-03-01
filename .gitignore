@@ -142,3 +142,6 @@ vite.config.ts.timestamp-*
 .ai
 .DS_Store
 coverage*
+
+#binary
+n8n-lint*

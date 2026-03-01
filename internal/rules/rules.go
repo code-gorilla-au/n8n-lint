@@ -13,7 +13,7 @@ func NewRulesEngine(config Configuration) Engine {
 }
 
 // Run evaluates the provided workflow against all rules and returns a FileReport summarizing the outcomes or an error.
-func (e Engine) Run(workflow n8n.Workflow) (FileReport, error) {
+func (e Engine) Run(workflow n8n.Workflow) ([]EvaluationOutcome, error) {
 	finder := n8n.NewWorkflowTree(workflow)
 
 	var outcomes []EvaluationOutcome
@@ -22,13 +22,13 @@ func (e Engine) Run(workflow n8n.Workflow) (FileReport, error) {
 
 		outcome, err := rule.Run(&finder, e.config.Rules)
 		if err != nil {
-			return FileReport{}, err
+			return outcomes, err
 		}
 
 		outcomes = append(outcomes, outcome)
 	}
 
-	return NewReport(outcomes), nil
+	return outcomes, nil
 }
 
 // Run evaluates the rule against the provided Finder and Ruleset, returning an EvaluationOutcome or an error if it fails.

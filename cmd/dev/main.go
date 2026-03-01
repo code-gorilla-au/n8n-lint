@@ -5,11 +5,15 @@ import (
 	"path/filepath"
 
 	"github.com/code-gorilla-au/n8n-lint/internal/chalk"
+	"github.com/code-gorilla-au/n8n-lint/internal/engine"
+	"github.com/code-gorilla-au/n8n-lint/internal/logging"
 	"github.com/code-gorilla-au/n8n-lint/internal/n8n"
 	"github.com/code-gorilla-au/n8n-lint/internal/rules"
 )
 
 func main() {
+	logging.SetVerbose()
+
 	configFile := filepath.Clean("cmd/dev/config.yaml")
 	jsonDir := filepath.Clean("internal/rules/test-data")
 
@@ -26,12 +30,13 @@ func main() {
 		log.Fatal(wErr)
 	}
 
-	orchestrator := rules.NewOrchestrator(config)
+	orchestrator := engine.NewOrchestrator(config)
 
-	reports, err := orchestrator.Run(workflows)
-
-	for _, report := range reports {
-		report.Print()
+	p, err := orchestrator.Run(workflows)
+	if err != nil {
+		log.Fatal(err)
 	}
+
+	p.Print()
 
 }

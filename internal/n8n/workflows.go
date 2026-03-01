@@ -10,13 +10,14 @@ import (
 	"slices"
 
 	"github.com/bmatcuk/doublestar/v4"
+	"github.com/code-gorilla-au/n8n-lint/internal/logging"
 
 	"github.com/code-gorilla-au/n8n-lint/internal/chalk"
 )
 
 // LoadWorkflowFromFile reads a JSON-encoded workflow from a file, unmarshals it, and returns the Workflow object.
 func LoadWorkflowFromFile(path string) (Workflow, error) {
-	log.Println("Loading file:", path)
+	logging.Log("Loading workflow from file: ", path)
 
 	data, err := os.ReadFile(filepath.Clean(path))
 	if err != nil {
@@ -39,8 +40,6 @@ func LoadWorkflowsFromDir(dirPath string, include []string, exclude []string) ([
 
 	includeSeen := make(map[string]struct{})
 	excludeSeen := make(map[string]struct{})
-	hasInclude := len(include) > 0
-	hasExclude := len(exclude) > 0
 
 	err := filepath.WalkDir(dirPath, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
@@ -55,43 +54,9 @@ func LoadWorkflowsFromDir(dirPath string, include []string, exclude []string) ([
 			return nil
 		}
 
-		relPath, err := filepath.Rel(dirPath, path)
-		if err != nil {
-			return err
-		}
-
-		if hasInclude {
-			if _, seen := includeSeen[relPath]; seen {
-				return nil
-			}
-
-			matched := slices.ContainsFunc(include, func(pattern string) bool {
-				m, _ := doublestar.Match(pattern, relPath)
-				return m
-			})
-
-			if !matched {
-				return nil
-			}
-
-			includeSeen[relPath] = struct{}{}
-		}
-
-		if hasExclude {
-			if _, seen := excludeSeen[relPath]; seen {
-				return nil
-			}
-
-			matched := slices.ContainsFunc(exclude, func(pattern string) bool {
-				m, _ := doublestar.Match(pattern, relPath)
-				return m
-			})
-
-			if matched {
-				excludeSeen[relPath] = struct{}{}
-				return nil
-			}
-
+		sErr, skip := checkIfShouldSkip(path, dirPath, includeSeen, include, excludeSeen, exclude)
+		if skip {
+			return sErr
 		}
 
 		workflow, err := LoadWorkflowFromFile(path)
@@ -109,4 +74,50 @@ func LoadWorkflowsFromDir(dirPath string, include []string, exclude []string) ([
 	}
 
 	return workflows, nil
+}
+
+func checkIfShouldSkip(path string, dirPath string, includeSeen map[string]struct{}, include []string, excludeSeen map[string]struct{}, exclude []string) (error, bool) {
+	hasInclude := len(include) > 0
+	hasExclude := len(exclude) > 0
+
+	relPath, err := filepath.Rel(dirPath, path)
+	if err != nil {
+		return err, true
+	}
+
+	if hasInclude {
+		if _, seen := includeSeen[relPath]; seen {
+			return nil, true
+		}
+
+		matched := slices.ContainsFunc(include, func(pattern string) bool {
+			m, _ := doublestar.Match(pattern, relPath)
+			return m
+		})
+
+		if !matched {
+			return nil, true
+		}
+
+		includeSeen[relPath] = struct{}{}
+	}
+
+	if hasExclude {
+		if _, seen := excludeSeen[relPath]; seen {
+			return nil, true
+		}
+
+		matched := slices.ContainsFunc(exclude, func(pattern string) bool {
+			m, _ := doublestar.Match(pattern, relPath)
+			return m
+		})
+
+		if matched {
+			excludeSeen[relPath] = struct{}{}
+			return nil, true
+		}
+
+	}
+
+	return nil, false
 }

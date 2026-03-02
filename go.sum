@@ -2,8 +2,8 @@ github.com/bmatcuk/doublestar/v4 v4.10.0 h1:zU9WiOla1YA122oLM6i4EXvGW62DvKZVxIe6
 github.com/bmatcuk/doublestar/v4 v4.10.0/go.mod h1:xBQ8jztBU6kakFMg+8WGxn0c6z1fTSPVIjEY1Wr7jzc=
 github.com/code-gorilla-au/env v1.1.1 h1:4rkSwCnyymKh+KGAOPx3fEg9v2ZV5i9r92bSf7xvnCE=
 github.com/code-gorilla-au/env v1.1.1/go.mod h1:KE4Ymfz5MhMi7SX3ZKH4iMFAHsDCvwOV8WTzgpwzzE4=
-github.com/code-gorilla-au/odize v1.3.4 h1:QHEM7v8/qH9R0QO6tVWh0yKr+VMv3RGC3PcIADwDGVA=
-github.com/code-gorilla-au/odize v1.3.4/go.mod h1:Q6uRMcQWCPldPNtlxiaWdA78vaPibTLZIO5owiM96Cw=
+github.com/code-gorilla-au/odize v1.3.5 h1:Bjb0c1NXRkbEppsCs2PSN4DHWy3yWIggTXdroibWF54=
+github.com/code-gorilla-au/odize v1.3.5/go.mod h1:+PtShsIEca9bAfxltU00OVD75aR5NvtkpOW/HGHdi9w=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/google/go-cmp v0.5.9 h1:O2Tfq5qg4qc4AmwVlvv0oLiVAGB7enBSJ2x2DqQFi38=

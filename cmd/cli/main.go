@@ -15,7 +15,7 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-var Version = "dev"
+var version = "dev"
 
 func main() {
 	setLogger()
@@ -33,7 +33,7 @@ func main() {
 		Name:        "n8n-lint",
 		Aliases:     nil,
 		Usage:       "Simple n8n workflow JSON linter.",
-		Version:     Version,
+		Version:     version,
 		Description: "Simple lint tool for n8n workflow JSON files.",
 		Flags: []cli.Flag{
 			&cli.StringFlag{

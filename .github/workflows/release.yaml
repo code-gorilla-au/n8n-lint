@@ -19,7 +19,7 @@ jobs:
 
       - name: Semantic Release
         id: semantic
-        uses: codfish/semantic-release-action@v4.0.1
+        uses: codfish/semantic-release-action@v5.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

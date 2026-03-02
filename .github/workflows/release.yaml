@@ -48,7 +48,7 @@ jobs:
           go-version-file: 'go.mod'
 
       - name: Install Task
-        uses: go-task/setup-task@v2
+        uses: go-task/setup-task@v1
 
       - name: Build
         run: task build OS=${{ matrix.os }} ARCH=${{ matrix.arch }} VERSION=v${{ needs.semantic-release.outputs.new-release-version }}

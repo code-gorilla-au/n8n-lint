@@ -54,7 +54,7 @@ jobs:
         run: task build OS=${{ matrix.os }} ARCH=${{ matrix.arch }} VERSION=v${{ needs.semantic-release.outputs.new-release-version }}
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: n8n-lint-${{ matrix.os }}-${{ matrix.arch }}
           path: n8n-lint-${{ matrix.os }}-${{ matrix.arch }}*

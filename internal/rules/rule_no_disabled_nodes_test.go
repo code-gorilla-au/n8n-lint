@@ -94,3 +94,35 @@ func TestRule_no_disabled_nodes_valid_json(t *testing.T) {
 		Run()
 	odize.AssertNoError(t, err)
 }
+
+func TestRule_no_disabled_nodes_allowed_names(t *testing.T) {
+	group := odize.NewGroup(t, nil)
+
+	cwd, err := os.Getwd()
+	odize.AssertNoError(t, err)
+	workflowFile := filepath.Join(cwd, "test-data", "no_disabled_nodes.json")
+
+	workflow, err := n8n.LoadWorkflowFromFile(workflowFile)
+	odize.AssertNoError(t, err)
+
+	finder := n8n.NewWorkflowTree(workflow)
+
+	err = group.
+		Test("should not report if disabled node name is allowed", func(t *testing.T) {
+			outcome, oErr := ruleNoDisabledNodes.Run(&finder, Ruleset{
+				NoDisabledNodes: NoDisabledNodesConfig{
+					BaseRuleConfig: BaseRuleConfig{
+						Name:   ruleNameNoDisabledNodes,
+						Report: ReportError,
+					},
+					AllowedNames: []string{"If"},
+				},
+			})
+			odize.AssertNoError(t, oErr)
+
+			odize.AssertEqual(t, ReportOff, outcome.Report)
+			odize.AssertEqual(t, 0, len(outcome.Nodes))
+		}).
+		Run()
+	odize.AssertNoError(t, err)
+}

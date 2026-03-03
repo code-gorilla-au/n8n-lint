@@ -1,0 +1,38 @@
+{
+	"nodes": [
+		{
+			"id": "1",
+			"type": "n8n-nodes-base.webhook",
+			"name": "Webhook",
+			"parameters": {
+				"path": "dead-end-demo",
+				"httpMethod": "POST"
+			},
+			"position": [100, 100]
+		},
+		{
+			"id": "2",
+			"type": "n8n-nodes-base.customNode",
+			"name": "My Custom Node",
+			"parameters": {},
+			"position": [320, 100]
+		}
+	],
+	"connections": {
+		"Webhook": {
+			"main": [
+				[
+					{
+						"node": "My Custom Node",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		}
+	},
+	"meta": {
+		"description": "",
+		"notes": []
+	}
+}

@@ -21,6 +21,8 @@ func TestRule_{{ .Name | caseSnake }}(t *testing.T) {
     workflow, err := n8n.LoadWorkflowFromFile(workflowFile)
     odize.AssertNoError(t, err)
 
+    finder := n8n.NewWorkflowTree(workflow)
+
     err = group.
         Test("should do something", func(t *testing.T) {
 			outcome, oErr := rule{{ .Name | casePascal }}.Run(&finder, Ruleset{

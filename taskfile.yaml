@@ -17,7 +17,7 @@ tasks:
       EXT: '{{if eq .OS "windows"}}.exe{{ else }}{{ end }}'
       BINARY_NAME: 'n8n-lint-{{ .OS }}-{{ .ARCH }}{{ .EXT }}'
     cmds:
-      - GOOS={{ .OS }} GOARCH={{ .ARCH }} go build -ldflags "-X main.Version={{ .VERSION }}" -o {{ .BINARY_NAME }} ./cmd/cli/main.go
+      - GOOS={{ .OS }} GOARCH={{ .ARCH }} go build -ldflags "-X main.version={{ .VERSION }}" -o {{ .BINARY_NAME }} ./cmd/cli/main.go
 
   ci:
     desc: Run go ci tasks.

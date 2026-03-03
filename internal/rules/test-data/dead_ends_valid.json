@@ -33,7 +33,7 @@
 		{
 			"id": "4",
 			"type": "n8n-nodes-base.noOp",
-			"name": "Done",
+			"name": "Do nothing",
 			"parameters": {},
 			"position": [760, 100]
 		}
@@ -65,7 +65,7 @@
 			"main": [
 				[
 					{
-						"node": "Done",
+						"node": "Do nothing",
 						"type": "main",
 						"index": 0
 					}

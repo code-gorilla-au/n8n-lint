@@ -1,9 +1,30 @@
 package n8n
 
 import (
+	"encoding/json"
 	"errors"
 	"time"
 )
+
+type ID string
+
+func (i *ID) UnmarshalJSON(b []byte) error {
+	if len(b) == 0 {
+		return nil
+	}
+
+	if b[0] == '"' {
+		var s string
+		if err := json.Unmarshal(b, &s); err != nil {
+			return err
+		}
+		*i = ID(s)
+		return nil
+	}
+
+	*i = ID(b)
+	return nil
+}
 
 type WorkflowTree struct {
 	File  string              `json:"file"`
@@ -17,7 +38,7 @@ type NodeMap struct {
 }
 
 type Node struct {
-	ID          string         `json:"id"`
+	ID          ID             `json:"id"`
 	Name        string         `json:"name"`
 	Disabled    bool           `json:"disabled"`
 	Type        string         `json:"type"`
@@ -40,7 +61,7 @@ type ConnectionNode struct {
 
 type Tags struct {
 	Name      string    `json:"name"`
-	ID        string    `json:"id"`
+	ID        ID        `json:"id"`
 	UpdatedAt time.Time `json:"updatedAt"`
 	CreatedAt time.Time `json:"createdAt"`
 }
@@ -51,7 +72,7 @@ type Workflow struct {
 	Nodes       []Node                                    `json:"Nodes"`
 	Connections map[string]map[string][][]*ConnectionNode `json:"connections"`
 	PinData     map[string]any                            `json:"pinData"`
-	ID          string                                    `json:"id"`
+	ID          ID                                        `json:"id"`
 	Tags        []Tags                                    `json:"tags"`
 	Meta        map[string]any                            `json:"meta"`
 	Settings    map[string]any                            `json:"settings"`

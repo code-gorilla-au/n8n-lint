@@ -6,7 +6,7 @@ require (
 	github.com/bmatcuk/doublestar/v4 v4.10.0
 	github.com/code-gorilla-au/odize v1.3.5
 	github.com/mattn/go-isatty v0.0.20
-	github.com/urfave/cli/v3 v3.6.2
+	github.com/urfave/cli/v3 v3.7.0
 	golang.org/x/term v0.40.0
 	golang.org/x/text v0.34.0
 	sigs.k8s.io/yaml v1.6.0

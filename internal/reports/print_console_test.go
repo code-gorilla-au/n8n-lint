@@ -2,7 +2,6 @@ package reports
 
 import (
 	"bytes"
-	"fmt"
 	"log"
 	"math"
 	"os"
@@ -66,7 +65,6 @@ func TestConsoleReporter_Print(t *testing.T) {
 			odize.AssertTrue(t, strings.Contains(output, "rule1"))
 			odize.AssertTrue(t, strings.Contains(output, "rule2"))
 
-			fmt.Println(output)
 			odize.AssertTrue(t, strings.Contains(output, "SUMMARY"))
 			odize.AssertTrue(t, strings.Contains(output, "File"))
 			odize.AssertTrue(t, strings.Contains(output, "Errors"))

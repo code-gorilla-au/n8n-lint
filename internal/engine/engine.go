@@ -56,6 +56,7 @@ func (o *Orchestrator) Run(workflows []n8n.Workflow) (reports.Summary, error) {
 // start launches all workers in the orchestrator and increments the WaitGroup counter for each worker.
 func (o *Orchestrator) start() {
 	for _, w := range o.Workers {
+		logging.Log("Starting worker", w.ID+1)
 		go w.Run()
 	}
 

@@ -48,7 +48,7 @@ func main() {
 				Usage:       "enable verbose logging",
 				Value:       false,
 				Destination: &flagVerbose,
-				Aliases:     []string{"v"},
+				Aliases:     []string{"V"},
 			},
 		},
 		Commands: []*cli.Command{

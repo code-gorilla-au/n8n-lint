@@ -78,6 +78,9 @@ type Ruleset struct {
 	// NoDeadEnds specifies the configuration for processing and validating workflows to ensure no dead-end nodes are present.
 	NoDeadEnds NoDeadEndsConfig `json:"no_dead_ends"`
 
+	// NoDeadNodes specifies the configuration for detecting and preventing workflows with dead nodes.
+	NoDeadNodes NoDeadNodesConfig `json:"no_dead_nodes"`
+
 	// NoDanglingIfs specifies the configuration for detecting and preventing workflows with improperly terminated "If" nodes.
 	NoDanglingIfs NoDanglingIfsConfig `json:"no_dangling_ifs"`
 
@@ -112,6 +115,9 @@ type NoDeadEndsConfig struct {
 
 	// AllowedNames specifies a list of node names that are exempt from being treated as dead-end nodes in the workflow validation.
 	AllowedNames []string `json:"allowed_names"`
+
+	// AllowedTypes specifies the list of node types that are exempt from being treated as dead-end nodes during validation.
+	AllowedTypes []string `json:"allowed_types"`
 }
 
 // NoInfiniteLoopConfig defines the configuration for detecting and handling no_infinite_loop.
@@ -129,5 +135,13 @@ type NoDisabledNodesConfig struct {
 	BaseRuleConfig
 
 	// AllowedNames specifies a list of node names that are permitted and exempt from rule checks.
+	AllowedNames []string `json:"allowed_names"`
+}
+
+// NoDeadNodesConfig defines the configuration for detecting and handling no_dead_nodes.
+type NoDeadNodesConfig struct {
+	BaseRuleConfig
+
+	// AllowedNames specifies a list of node names that are allowed and exempt from being treated as invalid or problematic.
 	AllowedNames []string `json:"allowed_names"`
 }

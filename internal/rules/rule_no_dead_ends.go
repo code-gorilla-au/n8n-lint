@@ -9,7 +9,7 @@ import (
 
 const (
 	ruleNameNoDeadEnds        = "NO_DEAD_ENDS"
-	ruleDescriptionNoDeadEnds = "Find nodes with no incoming and or outgoing connections. Indicating incomplete, untested, or unused nodes. Unused nodes causes confusion to the reviewers, cause drift in requirements and hide information. Default allowed dead end names are: STOP, END, DONE, FINISH, allowed types are: n8n-nodes-base.stickyNote, n8n-nodes-base.noOp"
+	ruleDescriptionNoDeadEnds = "Find nodes with no outgoing connections that meant to have a connection. Indicating incomplete, untested, or unused nodes. Unused nodes causes confusion to the reviewers, cause drift in requirements and hide information. Default allowed dead end names are: STOP, END, DONE, FINISH, allowed types are: n8n-nodes-base.stickyNote, n8n-nodes-base.noOp"
 )
 
 var ruleNoDeadEnds = Rule{

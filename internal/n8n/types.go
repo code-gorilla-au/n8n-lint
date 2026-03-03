@@ -19,6 +19,7 @@ type NodeMap struct {
 type Node struct {
 	ID          string         `json:"id"`
 	Name        string         `json:"name"`
+	Disabled    bool           `json:"disabled"`
 	Type        string         `json:"type"`
 	Position    []int          `json:"position"`
 	Parameters  map[string]any `json:"parameters"`

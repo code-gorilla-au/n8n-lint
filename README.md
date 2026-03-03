@@ -62,6 +62,10 @@ rules:
       - "Respond to Webhook"
   no_dangling_ifs:
     report: error
+  no_disabled_nodes:
+    report: warn
+    allowed_names:
+      - "Debug Node"
 ```
 
 ### Ruleset Configuration
@@ -73,6 +77,7 @@ The `rules` section allows you to configure individual rules:
 | `no_infinite_loop` | Detects potential infinite loops in the workflow. | `report` |
 | `no_dead_ends` | Detects nodes that do not lead to any subsequent action. | `report`, `allowed_names` (list of strings) |
 | `no_dangling_ifs` | Detects IF nodes where one or both branches are not connected. | `report` |
+| `no_disabled_nodes` | Detects disabled nodes in the workflow. | `report`, `allowed_names` (list of strings) |
 
 #### Reporting Levels
 - `error`: Fails the lint check (exit code 1).

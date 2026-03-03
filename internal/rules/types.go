@@ -112,6 +112,9 @@ type NoDeadEndsConfig struct {
 
 	// AllowedNames specifies a list of node names that are exempt from being treated as dead-end nodes in the workflow validation.
 	AllowedNames []string `json:"allowed_names"`
+
+	// AllowedTypes specifies the list of node types that are exempt from being treated as dead-end nodes during validation.
+	AllowedTypes []string `json:"allowed_types"`
 }
 
 // NoInfiniteLoopConfig defines the configuration for detecting and handling no_infinite_loop.

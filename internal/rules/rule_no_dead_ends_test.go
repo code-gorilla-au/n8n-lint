@@ -1,6 +1,7 @@
 package rules
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -34,7 +35,9 @@ func TestRule_dead_ends_valid(t *testing.T) {
 			})
 			odize.AssertNoError(t, oErr)
 
-			odize.AssertEqual(t, outcome.Report, ReportOff)
+			fmt.Println(outcome.Nodes)
+
+			odize.AssertEqual(t, ReportOff, outcome.Report)
 			odize.AssertEqual(t, 0, len(outcome.Nodes))
 		}).
 		Test("should return report off on a valid workflow, and report level warn", func(t *testing.T) {

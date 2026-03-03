@@ -9,7 +9,7 @@ import (
 
 const (
 	ruleNameNoDeadEnds        = "NO_DEAD_ENDS"
-	ruleDescriptionNoDeadEnds = "Find nodes with no incoming and or outgoing connections. Indicating incomplete, untested, or unused nodes. Unused nodes causes confusion to the reviewers, cause drift in requirements and hide information."
+	ruleDescriptionNoDeadEnds = "Find nodes with no incoming and or outgoing connections. Indicating incomplete, untested, or unused nodes. Unused nodes causes confusion to the reviewers, cause drift in requirements and hide information. Default allowed dead end names are: STOP, END, DONE, FINISH, allowed types are: n8n-nodes-base.stickyNote, n8n-nodes-base.noOp"
 )
 
 var ruleNoDeadEnds = Rule{
@@ -49,16 +49,18 @@ var ruleNoDeadEnds = Rule{
 	},
 }
 
-var defaultAllowedDeadEnds = []string{"STOP", "END", "DONE", "FINISH", "SUCCESS"}
+var defaultAllowedDeadEnds = []string{"STOP", "END", "DONE", "FINISH"}
 var defaultAllowedDeadEndTypes = []string{"n8n-nodes-base.stickyNote", "n8n-nodes-base.noOp"}
 
 // getAllowedDeadEnds retrieves the list of allowed dead-end node names from the configuration or defaults if not provided.
 func getAllowedDeadEnds(config Ruleset) []string {
-	merged := defaultAllowedDeadEnds
+	var merged []string
 
-	customNames := config.NoDeadEnds.AllowedNames
+	merged = append(merged, defaultAllowedDeadEnds...)
+	merged = append(merged, defaultAllowedDeadEndTypes...)
 
-	merged = append(merged, customNames...)
+	merged = append(merged, config.NoDeadEnds.AllowedNames...)
+	merged = append(merged, config.NoDeadEnds.AllowedTypes...)
 
 	return merged
 }

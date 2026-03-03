@@ -36,7 +36,7 @@ var ruleNoDeadEnds = Rule{
 				continue
 			}
 
-			if slices.Contains(defaultAllowedDeadEndTypes, node.Node.Type) {
+			if slices.Contains(allowed, node.Node.Type) {
 				continue
 			}
 

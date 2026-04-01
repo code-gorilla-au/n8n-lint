@@ -8,7 +8,7 @@ require (
 	github.com/mattn/go-isatty v0.0.20
 	github.com/urfave/cli/v3 v3.7.0
 	golang.org/x/term v0.40.0
-	golang.org/x/text v0.34.0
+	golang.org/x/text v0.35.0
 	sigs.k8s.io/yaml v1.6.0
 )
 
